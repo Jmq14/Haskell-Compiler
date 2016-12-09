@@ -7,14 +7,11 @@ module Parser where
 	preSplit :: String -> [String]
 	preSplit s = splitOn " " s; 
 
-	parseSecondPartofTwoExpr :: Expr -> [String] -> (Expr,Expr,[String])
-	parseSecondPartofTwoExpr newExpr1 x = let (newExpr2 , newAhead) = parseExpr x in (newExpr1 , newExpr2 , newAhead);
-
-	parseFirstPartOfTwoExpr :: [String] -> (Expr,Expr,[String])
-	parseFirstPartOfTwoExpr x = let (newExpr , newAhead) = parseExpr x in parseSecondPartofTwoExpr newExpr newAhead;
-
 	parseTwoExpr :: [String] -> (Expr,Expr,[String])
-	parseTwoExpr x = parseFirstPartOfTwoExpr x;
+	parseTwoExpr x = let 
+			(newExpr1 , newAhead1) = parseExpr x
+			(newExpr2 , newAhead2) = parseExpr newAhead1
+		in (newExpr1 , newExpr2 , newAhead2);
 
 	parseNotExpr :: [String] -> (Expr,[String])
 	parseNotExpr x	= let (newExpr,newAhead) = parseExpr x in (NewExpr NotOperator BoolType newExpr EmptyExpr,newAhead);
