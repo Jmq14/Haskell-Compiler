@@ -5,3 +5,4 @@ cabal-test/
 
 .cabal-sandbox/
 dist/
+bin/
