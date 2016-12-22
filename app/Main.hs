@@ -43,10 +43,31 @@ module Main where
 									print preState
 									replWork preState preVariable
 	
-	mainWork m = 
+	normalWork input operator output = do
+		if (operator == "value")
+			then 
+				if (output == "")
+					then print (Expr.valueOfExpr (Parser.myParse input))
+					else writeFile output (show (Expr.valueOfExpr (Parser.myParse input)))
+			else 
+				if (output == "")
+					then print (Parser.myParse input)
+					else writeFile output (show (Parser.myParse input))
+	
+	mainWork m =  do
 		if (Map.member "-repl" m)
 			then replWork Expr.EmptyExpr Map.empty 
-			else print "no"
+			else
+				if (Map.member "-i" m)
+					then do
+						input <- readFile (Map.findWithDefault "error" "-i" m)
+						normalWork input "value" (Map.findWithDefault "" "-o" m)
+					else 
+						if (Map.member "-t" m)
+							then do
+								input <- readFile (Map.findWithDefault "error" "-t" m)
+								normalWork input "ast" (Map.findWithDefault "" "-o" m)
+							else print "Parameter not enough"
 
 	main :: IO()
 	main = do

@@ -2,10 +2,25 @@ module Parser where
 	import Tree;
 	import Expr;
 
-	import Data.List.Split;
+	import qualified Data.List.Split as Split;
+
+	filt :: [String] -> [String]
+	filt [] = []
+	filt (x:xs) =
+		if (x == [])
+			then filt xs
+			else (x:(filt xs))
+
+	repl :: Char -> Char
+	repl '\t' = ' '
+	repl c = c
+
+	preSplit2 :: [String] -> [String]
+	preSplit2 [] = []
+	preSplit2 (x:xs) = (Split.splitOn " " (map repl x)) ++ (preSplit2 xs)
 
 	preSplit :: String -> [String]
-	preSplit s = splitOn " " s; 
+	preSplit s = filt (preSplit2 (Split.splitOn "\n" s));
 
 	parseTwoExpr :: [String] -> (Expr,Expr,[String])
 	parseTwoExpr x = let 
