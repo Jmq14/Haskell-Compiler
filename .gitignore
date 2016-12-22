@@ -6,3 +6,6 @@ cabal-test/
 .cabal-sandbox/
 dist/
 bin/
+
+.stack-work/
+
