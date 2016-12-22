@@ -22,7 +22,7 @@ module Main where
 
 	reConcat :: [String] -> String
 	reConcat [] = ""
-	reConcat (x:xs) = x ++ (reConcat xs)
+	reConcat (x:xs) = x ++ " " ++ (reConcat xs)
 
 	printValueandWork newState newVariable newExpr = do
 		print (Expr.valueOfExpr newExpr)
@@ -38,7 +38,9 @@ module Main where
 						then print "Goodbye"
 						else
 							if ((head x) == ":i")
-								then printValueandWork preVariable preVariable (Parser.myParse( (reConcat (tail x))))
+								then do
+									print (reConcat (tail x))
+									printValueandWork preVariable preVariable (Parser.myParse( (reConcat (tail x))))
 								else do
 									print preState
 									replWork preState preVariable
