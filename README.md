@@ -1,7 +1,23 @@
 # Haskell-Compiler
 
-First install cabal.(http://www.baidu.com)
+First install stack.(http://www.baidu.com)
 
-Then python compile.py to build the whole project.
+Second, run
 
-The view of the readme needs to be fixed because zhx is not very familiar with markdown.
+```sh
+tools/setup.sh
+```
+
+to setup.
+
+To compile, run
+
+```sh
+tools/compile.sh
+```
+
+To run code, run
+
+```sh
+tools/run.sh
+```
