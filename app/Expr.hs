@@ -1,19 +1,27 @@
 module Expr where
 	
-	data DataType = BoolType | FloatType | StringType | ErrorType deriving (Show, Eq);
+	data DataType = BoolType | FloatType | StringType | PairType DataType DataType | ErrorType deriving (Show, Eq);
 
-	data OperatorType = NotOperator | AndOperator | OrOperator | PlusOperator | MinusOperator | MultiplicationOperator | DivisionOperator | EqualOperator | LessOperator | LeqOperator | GreatOperator | GeqOperator deriving (Show, Eq);
+	data OperatorType = NotOperator | AndOperator | OrOperator | PlusOperator | MinusOperator | MultiplicationOperator | DivisionOperator | EqualOperator | LessOperator | LeqOperator | GreatOperator | GeqOperator | ConsOperator | CarOperator | CdrOperator deriving (Show, Eq);
 
-	data Constant = BoolConstant Bool | FloatConstant Float | ErrorConstant deriving (Show, Eq);
+	data Constant = BoolConstant Bool | FloatConstant Float | PairConstant (Constant,Constant) | ErrorConstant deriving (Show, Eq);
 
 	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr deriving (Show, Eq);
 
 	getExprType :: Expr -> DataType
-	getExprType EmptyExpr			= ErrorType
+	getExprType EmptyExpr						= ErrorType
 	getExprType (NewConstant (BoolConstant _))	= BoolType
 	getExprType (NewConstant (FloatConstant _))	= FloatType
 	getExprType (NewConstant ErrorConstant)		= ErrorType
-	getExprType (NewExpr _ t _ _)	= t;
+	getExprType (NewExpr _ t _ _)				= t;
+
+	getPairLeftType :: Expr -> DataType
+	getPairLeftType (NewExpr _ (PairType l r) _ _) = l;
+	getPairLeftType _ = ErrorType;
+	
+	getPairRightType :: Expr -> DataType
+	getPairRightType (NewExpr _ (PairType l r) _ _) = r;
+	getPairRightType _ = ErrorType;
 
 	notConstant :: Constant -> Constant
 	notConstant (BoolConstant x) = BoolConstant (not x)
@@ -55,6 +63,17 @@ module Expr where
 	geqConstant (FloatConstant v1) (FloatConstant v2) = BoolConstant (v1>=v2);
 	geqConstant _ _ = ErrorConstant;
 
+	consConstant :: Constant -> Constant -> Constant
+	consConstant x y = PairConstant (x,y)
+
+	carConstant :: Constant -> Constant
+	carConstant (PairConstant (x,y)) = x
+	carConstant _ = ErrorConstant;
+
+	cdrConstant :: Constant -> Constant
+	cdrConstant (PairConstant (x,y)) = y
+	cdrConstant _ = ErrorConstant
+
 	valueOfExpr :: Expr -> Constant
 	valueOfExpr EmptyExpr = error "Something Wrong!";
 	valueOfExpr (NewConstant (BoolConstant x)) = BoolConstant x;
@@ -79,3 +98,6 @@ module Expr where
 		| operator == LeqOperator = leqConstant (valueOfExpr expr1) (valueOfExpr expr2)
 		| operator == GreatOperator = greatConstant (valueOfExpr expr1) (valueOfExpr expr2)
 		| operator == GeqOperator = geqConstant (valueOfExpr expr1) (valueOfExpr expr2)
+		| operator == ConsOperator = consConstant (valueOfExpr expr1) (valueOfExpr expr2)
+		| operator == CarOperator = carConstant (valueOfExpr expr1)
+		| operator == CdrOperator = cdrConstant (valueOfExpr expr1)

@@ -64,6 +64,15 @@ module Parser where
 	parseGeqExpr :: [String] -> (Expr,[String])
 	parseGeqExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr GeqOperator BoolType newExpr1 newExpr2,newAhead);
 
+	parseConsExpr :: [String] -> (Expr,[String])
+	parseConsExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr ConsOperator (PairType (Expr.getExprType newExpr1) (Expr.getExprType newExpr2)) newExpr1 newExpr2,newAhead);
+
+	parseCarExpr :: [String] -> (Expr,[String])
+	parseCarExpr x = let (newExpr,newAhead) = parseExpr x in (NewExpr CarOperator (Expr.getPairLeftType newExpr) newExpr EmptyExpr,newAhead);
+
+	parseCdrExpr :: [String] -> (Expr,[String])
+	parseCdrExpr x = let (newExpr,newAhead) = parseExpr x in (NewExpr CdrOperator (Expr.getPairRightType newExpr) newExpr EmptyExpr,newAhead);
+
 	parseFloat :: [String] -> (Expr,[String])
 	parseFloat (x:xs) = (NewConstant (FloatConstant (read x :: Float)),xs); 
 
@@ -84,6 +93,9 @@ module Parser where
 		| x == "<="		= parseLeqExpr xs
 		| x == ">"		= parseGreatExpr xs
 		| x == ">="		= parseGeqExpr xs
+		| x == "cons"	= parseConsExpr xs
+		| x == "car"	= parseCarExpr xs
+		| x == "cdr"	= parseCdrExpr xs
 		| otherwise		=
 			if ((head x) >= '0' && (head x) <= '9')
 				then parseFloat (x:xs)
