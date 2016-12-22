@@ -77,5 +77,5 @@ module Parser where
 	parseOn :: [String] -> (Expr,[String]);
 	parseOn s = parseExpr s;
 	
-	parse :: String -> Expr;
-	parse s = let (result,ahead) = parseOn (preSplit s) in result;
+	myParse :: String -> Expr;
+	myParse s = let (result,ahead) = parseOn (preSplit s) in result;
