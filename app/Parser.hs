@@ -1,6 +1,6 @@
 module Parser where
-	import Tree;
-	import Expr;
+	import qualified Tree as Tree;
+	import qualified Expr as Expr;
 
 	import qualified Data.List.Split as Split;
 
@@ -22,65 +22,65 @@ module Parser where
 	preSplit :: String -> [String]
 	preSplit s = filt (preSplit2 (Split.splitOn "\n" s));
 
-	parseTwoExpr :: [String] -> (Expr,Expr,[String])
+	parseTwoExpr :: [String] -> (Expr.Expr,Expr.Expr,[String])
 	parseTwoExpr x = let 
 			(newExpr1 , newAhead1) = parseExpr x
 			(newExpr2 , newAhead2) = parseExpr newAhead1
 		in (newExpr1 , newExpr2 , newAhead2);
 
-	parseNotExpr :: [String] -> (Expr,[String])
-	parseNotExpr x	= let (newExpr,newAhead) = parseExpr x in (NewExpr NotOperator BoolType newExpr EmptyExpr,newAhead);
+	parseNotExpr :: [String] -> (Expr.Expr,[String])
+	parseNotExpr x	= let (newExpr,newAhead) = parseExpr x in (Expr.NewExpr Expr.NotOperator Expr.BoolType newExpr Expr.EmptyExpr,newAhead);
 
-	parseAndExpr :: [String] -> (Expr,[String])
-	parseAndExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr AndOperator BoolType newExpr1 newExpr2,newAhead);
+	parseAndExpr :: [String] -> (Expr.Expr,[String])
+	parseAndExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.AndOperator Expr.BoolType newExpr1 newExpr2,newAhead);
 
-	parseOrExpr :: [String] -> (Expr,[String])
-	parseOrExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr OrOperator BoolType newExpr1 newExpr2,newAhead);
+	parseOrExpr :: [String] -> (Expr.Expr,[String])
+	parseOrExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.OrOperator Expr.BoolType newExpr1 newExpr2,newAhead);
 
-	parsePlusExpr :: [String] -> (Expr,[String])
-	parsePlusExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr PlusOperator FloatType newExpr1 newExpr2,newAhead);
+	parsePlusExpr :: [String] -> (Expr.Expr,[String])
+	parsePlusExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.PlusOperator Expr.FloatType newExpr1 newExpr2,newAhead);
 
-	parseMinusExpr :: [String] -> (Expr,[String])
-	parseMinusExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr MinusOperator FloatType newExpr1 newExpr2,newAhead);
+	parseMinusExpr :: [String] -> (Expr.Expr,[String])
+	parseMinusExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.MinusOperator Expr.FloatType newExpr1 newExpr2,newAhead);
 
-	parseMultiplicationExpr :: [String] -> (Expr,[String])
-	parseMultiplicationExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr MultiplicationOperator FloatType newExpr1 newExpr2,newAhead);
+	parseMultiplicationExpr :: [String] -> (Expr.Expr,[String])
+	parseMultiplicationExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.MultiplicationOperator Expr.FloatType newExpr1 newExpr2,newAhead);
 
-	parseDivisionExpr :: [String] -> (Expr,[String])
-	parseDivisionExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr DivisionOperator FloatType newExpr1 newExpr2,newAhead);
+	parseDivisionExpr :: [String] -> (Expr.Expr,[String])
+	parseDivisionExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.DivisionOperator Expr.FloatType newExpr1 newExpr2,newAhead);
 
-	parseEqualExpr :: [String] -> (Expr,[String])
-	parseEqualExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr EqualOperator BoolType newExpr1 newExpr2,newAhead);
+	parseEqualExpr :: [String] -> (Expr.Expr,[String])
+	parseEqualExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.EqualOperator Expr.BoolType newExpr1 newExpr2,newAhead);
 
-	parseLessExpr :: [String] -> (Expr,[String])
-	parseLessExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr LessOperator BoolType newExpr1 newExpr2,newAhead);
+	parseLessExpr :: [String] -> (Expr.Expr,[String])
+	parseLessExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.LessOperator Expr.BoolType newExpr1 newExpr2,newAhead);
 
-	parseLeqExpr :: [String] -> (Expr,[String])
-	parseLeqExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr LeqOperator BoolType newExpr1 newExpr2,newAhead);
+	parseLeqExpr :: [String] -> (Expr.Expr,[String])
+	parseLeqExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.LeqOperator Expr.BoolType newExpr1 newExpr2,newAhead);
 
-	parseGreatExpr :: [String] -> (Expr,[String])
-	parseGreatExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr GreatOperator BoolType newExpr1 newExpr2,newAhead);
+	parseGreatExpr :: [String] -> (Expr.Expr,[String])
+	parseGreatExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.GreatOperator Expr.BoolType newExpr1 newExpr2,newAhead);
 
-	parseGeqExpr :: [String] -> (Expr,[String])
-	parseGeqExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr GeqOperator BoolType newExpr1 newExpr2,newAhead);
+	parseGeqExpr :: [String] -> (Expr.Expr,[String])
+	parseGeqExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.GeqOperator Expr.BoolType newExpr1 newExpr2,newAhead);
 
-	parseConsExpr :: [String] -> (Expr,[String])
-	parseConsExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (NewExpr ConsOperator (PairType (Expr.getExprType newExpr1) (Expr.getExprType newExpr2)) newExpr1 newExpr2,newAhead);
+	parseConsExpr :: [String] -> (Expr.Expr,[String])
+	parseConsExpr x = let (newExpr1,newExpr2,newAhead) = parseTwoExpr x in (Expr.NewExpr Expr.ConsOperator (Expr.PairType (Expr.getExprType newExpr1) (Expr.getExprType newExpr2)) newExpr1 newExpr2,newAhead);
 
-	parseCarExpr :: [String] -> (Expr,[String])
-	parseCarExpr x = let (newExpr,newAhead) = parseExpr x in (NewExpr CarOperator (Expr.getPairLeftType newExpr) newExpr EmptyExpr,newAhead);
+	parseCarExpr :: [String] -> (Expr.Expr,[String])
+	parseCarExpr x = let (newExpr,newAhead) = parseExpr x in (Expr.NewExpr Expr.CarOperator (Expr.getPairLeftType newExpr) newExpr Expr.EmptyExpr,newAhead);
 
-	parseCdrExpr :: [String] -> (Expr,[String])
-	parseCdrExpr x = let (newExpr,newAhead) = parseExpr x in (NewExpr CdrOperator (Expr.getPairRightType newExpr) newExpr EmptyExpr,newAhead);
+	parseCdrExpr :: [String] -> (Expr.Expr,[String])
+	parseCdrExpr x = let (newExpr,newAhead) = parseExpr x in (Expr.NewExpr Expr.CdrOperator (Expr.getPairRightType newExpr) newExpr Expr.EmptyExpr,newAhead);
 
-	parseFloat :: [String] -> (Expr,[String])
-	parseFloat (x:xs) = (NewConstant (FloatConstant (read x :: Float)),xs); 
+	parseFloat :: [String] -> (Expr.Expr,[String])
+	parseFloat (x:xs) = (Expr.NewConstant (Expr.FloatConstant (read x :: Float)),xs); 
 
-	parseExpr :: [String] -> (Expr,[String])
-	parseExpr [] = (EmptyExpr,[]);
+	parseExpr :: [String] -> (Expr.Expr,[String])
+	parseExpr [] = (Expr.EmptyExpr,[]);
 	parseExpr (x:xs) 
-		| x == "True"	= (NewConstant (BoolConstant True),xs)
-		| x == "False"	= (NewConstant (BoolConstant False),xs)
+		| x == "True"	= (Expr.NewConstant (Expr.BoolConstant True),xs)
+		| x == "False"	= (Expr.NewConstant (Expr.BoolConstant False),xs)
 		| x == "not"	= parseNotExpr xs
 		| x == "and"	= parseAndExpr xs
 		| x == "or"		= parseOrExpr xs
@@ -99,10 +99,10 @@ module Parser where
 		| otherwise		=
 			if ((head x) >= '0' && (head x) <= '9')
 				then parseFloat (x:xs)
-				else (EmptyExpr,(x:xs))
+				else (Expr.EmptyExpr,(x:xs))
 
-	parseOn :: [String] -> (Expr,[String]);
+	parseOn :: [String] -> (Expr.Expr,[String]);
 	parseOn s = parseExpr s;
 	
-	myParse :: String -> Expr;
+	myParse :: String -> Expr.Expr;
 	myParse s = let (result,ahead) = parseOn (preSplit s) in result;

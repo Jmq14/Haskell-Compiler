@@ -1,10 +1,10 @@
 module Expr where
 	
-	data DataType = BoolType | FloatType | StringType | PairType DataType DataType | ErrorType deriving (Show, Eq);
+	data DataType = BoolType | FloatType | StringType | CharType | PairType DataType DataType | ErrorType deriving (Show, Eq);
 
 	data OperatorType = NotOperator | AndOperator | OrOperator | PlusOperator | MinusOperator | MultiplicationOperator | DivisionOperator | EqualOperator | LessOperator | LeqOperator | GreatOperator | GeqOperator | ConsOperator | CarOperator | CdrOperator deriving (Show, Eq);
 
-	data Constant = BoolConstant Bool | FloatConstant Float | PairConstant (Constant,Constant) | ErrorConstant deriving (Show, Eq);
+	data Constant = BoolConstant Bool | FloatConstant Float | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | ErrorConstant deriving (Show, Eq);
 
 	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr deriving (Show, Eq);
 
