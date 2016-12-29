@@ -8,6 +8,12 @@ Second, run
 tools/setup.sh
 ```
 
+or
+
+```sh
+python tools/setup.py
+```
+
 to setup.
 
 To compile, run
@@ -16,8 +22,20 @@ To compile, run
 tools/compile.sh
 ```
 
+or
+
+```sh
+python tools/compile.py
+```
+
 To run code, run
 
 ```sh
 tools/run.sh
+```
+
+or
+
+```sh
+python tools/run.py
 ```

@@ -41,9 +41,13 @@ module Main where
 								then do
 									print (reConcat (tail x))
 									printValueandWork preVariable preVariable (Parser.myParse( (reConcat (tail x))))
-								else do
-									print preState
-									replWork preState preVariable
+								else 
+									if ((head x) == ":t")
+										then do
+											print preState
+											replWork preState preVariable
+										else do
+											print "Invalid operation"
 	
 	normalWork input operator output = do
 		if (operator == "value")
@@ -75,5 +79,6 @@ module Main where
 	main = do
 --		line <- getLine
 		a <- getArgs
+		print a
 		mainWork (analyzeArgs a)
 --		print (valueOfExpr (getASTTree line))
