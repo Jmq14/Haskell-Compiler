@@ -18,30 +18,34 @@ module Parser where
 	repl '\t' = ' '
 	repl c = c
 
+	-- Step 3
 	preSplitSpace :: String -> [String]
 	preSplitSpace s = Split.splitOn " " (map repl s)
 
+	-- Step 0
 	preSplitLine :: String -> [String]
 	preSplitLine = Split.splitOn "\n"
 
-	preSplitChar :: [String] -> [String]
+	-- Step 2
+	preSplitChar :: String -> [String]
 	preSplitChar [] = []
-	preSplitChar (x:xs) = handle r ++ preSplitChar xs where
+	preSplitChar x = handle r where
 		r = Split.splitOn "'" x
 		handle [] = []
 		handle (r:[]) = preSplitSpace r
 		handle (r: rs) = preSplitSpace r ++ ["'" ++ head rs ++ "'"] ++ handle (tail rs)
 
+	-- Step 1
 	preSplitString :: [String] -> [String]
 	preSplitString [] = []
-	preSplitString (x:xs) = handle r ++ preSplitChar xs where
-		r = Split.splitOn "\"" x
+	preSplitString (x:xs) = handle r ++ preSplitString xs where
+		r = Split.splitOn "''" x
 		handle [] = []
-		handle (r:[]) = preSplitSpace r
-		handle (r: rs) = preSplitSpace r ++ ["\"" ++ head rs ++ "\""] ++ handle (tail rs)
+		handle (r:[]) = preSplitChar r
+		handle (r: rs) = preSplitChar r ++ ["''" ++ head rs ++ "''"] ++ handle (tail rs)
 
 	preSplit :: String -> [String]
-	preSplit = filt . preSplitString . preSplitChar . preSplitLine
+	preSplit = filt . preSplitString . preSplitLine
 
 	parseProgram :: [String] -> (Tree.Node,[String])
 	parseProgram s = ParseStatement.parseStatement s
