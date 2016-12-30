@@ -3,6 +3,7 @@ module Main where
 	import qualified Expr as Expr
 	import qualified Tree as Tree
 	import qualified Variable as Variable
+	import qualified ParseStatement as ParseStatement
 
 	import System.Environment
 	import System.Exit
@@ -28,9 +29,9 @@ module Main where
 	reConcat [] = ""
 	reConcat (x:xs) = x ++ " " ++ (reConcat xs)
 
---	printValueandWork newState variable newExpr = do
---		print (Expr.valueOfExpr newExpr new)
---		replWork newExpr newVariable
+	printValueandWork state variable output = do
+		print output
+		replWork state variable
 
 	replWork state variable = do
 		line <- getLine
@@ -43,9 +44,10 @@ module Main where
 						else
 							if ((head x) == ":i")
 								then do
-									print (reConcat (tail x))
-									let newState = Parser.myParse ( reConcat (tail x) ) ; newVariable = Tree.runNode (newState,variable,"") in replWork newState newVariable
-									print "\n"
+									--print (ParseStatement.parseStatement ["(","begin","skip","skip",")"])
+									--print (Parser.preSplit (reConcat (tail x)))
+									print (Parser.myParse (reConcat (tail x)))
+									let newState = Parser.myParse ( reConcat (tail x) ) ; (newVariable,output) = Tree.runNode (newState,variable,"") in printValueandWork newState newVariable output
 								else 
 									if ((head x) == ":t")
 										then do
@@ -57,7 +59,10 @@ module Main where
 	normalWork input operator output = do
 		if (operator == "value")
 			then do
-				let x = Tree.runNode (Parser.myParse input,Map.empty,output) in print ""
+				let (state,result) = Tree.runNode (Parser.myParse input,Map.empty,"") in
+					if (output == "")
+						then print result
+						else writeFile output result
 			else 
 				if (output == "")
 					then print (Parser.myParse input)

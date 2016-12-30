@@ -18,13 +18,13 @@ module ParseStatement where
 	parseStatementList :: [String] -> (Tree.Node,[String])
 	parseStatementList [] = (Tree.ErrorNode,[])
 	parseStatementList (x:xs)
-		| x == ")"		= (Tree.Nil,xs)
+		| x == ")"		= (Tree.Nil,x:xs)
 		| otherwise		= let (statement1,newAhead1) = parseStatement (x:xs) ; (statement2,newAhead2) = parseStatementList newAhead1 in (Tree.StatementListNode statement1 statement2,newAhead2)
 
 	parsePrint :: [String] -> (Tree.Node,[String])
 	parsePrint [] = (Tree.ErrorNode,[])
 	parsePrint (x:xs)
-		| x == ")"		= (Tree.Nil,xs)
+		| x == ")"		= (Tree.Nil,x:xs)
 		| otherwise		= let (expr,newAhead) = ParseExpr.parseExpr (x:xs) in (Tree.PrintNode expr,newAhead)
 
 	parseBracketStatement :: [String] -> (Tree.Node,[String])
@@ -39,7 +39,7 @@ module ParseStatement where
 	parseStatement :: [String]-> (Tree.Node,[String])
 	parseStatement [] = (Tree.Nil,[]);
 	parseStatement (x:xs)
-		| x == "skip"	= undefined
+		| x == "skip"	= (Tree.Nil,xs)
 		| x == "("		= let (node,newAhead) = parseBracketStatement xs in
 							if ((newAhead == []) || ((head newAhead) /= ")"))
 								then (Tree.ErrorNode,newAhead)

@@ -3,37 +3,36 @@ module Tree where
 	import qualified Variable as Variable;
 
 	import qualified Data.Map as Map;
+
+	import qualified Debug.Trace as Trace;
 	
 	data Node = Nil | StatementListNode Node Node | SetVariableNode Variable.Variable Expr.Expr | WhileNode Expr.Expr Node | IfNode Expr.Expr Node Node | PrintNode Expr.Expr | ErrorNode deriving (Show, Eq);
 
-	runInNode :: (Node,Map.Map Variable.Variable Expr.Constant,String) -> Map.Map Variable.Variable Expr.Constant
-	runInNode (WhileNode condition statement,variable,filename) =
-		let newVariable = runNode (statement,variable,filename) in runNode (WhileNode condition statement,newVariable,filename)
+	runInNode :: (Node,Map.Map Variable.Variable Expr.Constant,String) -> (Map.Map Variable.Variable Expr.Constant,String)
+	runInNode (WhileNode condition statement,variable,output) =
+		let (newVariable,newOutput) = runNode (statement,variable,output) in runNode (WhileNode condition statement,newVariable,newOutput)
 	runInNode _ = error "sb"
 
-	runNode :: (Node,Map.Map Variable.Variable Expr.Constant,String) -> Map.Map Variable.Variable Expr.Constant
-	runNode (Nil,variable,_) = variable;
-	runNode (StatementListNode n1 n2,variable,filename) = let newVariable = runNode (n1,variable,filename) in runNode (n2,newVariable,filename)
-	runNode (SetVariableNode nowVariable expr,variable,fileanme) = Map.insert nowVariable (Expr.valueOfExpr expr variable) variable
-	runNode (WhileNode condition statement,variable,filename) =
+	runNode :: (Node,Map.Map Variable.Variable Expr.Constant,String) -> (Map.Map Variable.Variable Expr.Constant,String)
+	runNode (ErrorNode,variable,output) = (variable,"error")
+	runNode (Nil,variable,output) = (variable,output);
+	runNode (StatementListNode n1 n2,variable,output) = let (newVariable,newOutput) = runNode (n1,variable,output) in runNode (n2,newVariable,newOutput)
+	runNode (SetVariableNode nowVariable expr,variable,output) = (Map.insert nowVariable (Expr.valueOfExpr expr variable) variable,output)
+	runNode (WhileNode condition statement,variable,output) =
 		let value = Expr.valueOfExpr condition variable in
 			if (value == (Expr.BoolConstant True))
-				then runInNode (WhileNode condition statement,variable,filename)
+				then runInNode (WhileNode condition statement,variable,output)
 				else
 					if (value == (Expr.BoolConstant False))
-						then runInNode (WhileNode condition statement,variable,filename)
+						then (variable,output)
 						else error "sb"
-	runNode (IfNode condition branch1 branch2,variable,filename) = 
+	runNode (IfNode condition branch1 branch2,variable,output) = 
 		let value = Expr.valueOfExpr condition variable in
 			if (value == (Expr.BoolConstant True))
-				then runNode (branch1,variable,filename)
+				then runNode (branch1,variable,output)
 				else
 					if (value == (Expr.BoolConstant False))
-						then runNode (branch2,variable,filename)
+						then runNode (branch2,variable,output)
 						else error "sb"
-	runNode (PrintNode expr,variable,filename) =
-		let x = 
-			if (filename == "")
-				then print (Expr.valueOfExpr expr variable) 
-				else writeFile filename (show (Expr.valueOfExpr expr variable))
-		in variable
+	runNode (PrintNode expr,variable,output) =
+		let var = Expr.valueOfExpr expr variable in (variable,output ++ (show var) ++ "\n")

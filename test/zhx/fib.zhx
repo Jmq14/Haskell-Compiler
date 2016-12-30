@@ -1,0 +1,1 @@
+(begin (set! n 0) (set! a 0) (set! b 1) (print a) (print b) (while (<= n 50) (begin (set! c (+ a b)) (print c) (set! a b) (set! b c) (set! n (+ n 1)))))
