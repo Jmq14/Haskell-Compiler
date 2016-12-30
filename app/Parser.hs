@@ -28,8 +28,12 @@ module Parser where
 	parseProgram :: [String] -> (Tree.Node,[String])
 	parseProgram s = ParseStatement.parseStatement s;
 
-	parseOn :: [String] -> (Expr.Expr,[String]);
-	parseOn s = ParseExpr.parseExpr s;
+	parseOn :: [String] -> Tree.Node;
+	parseOn s =
+		let (node,ahead) = parseProgram s in
+			if (ahead /= []) 
+				then Tree.ErrorNode
+				else node
 	
-	myParse :: String -> Expr.Expr;
-	myParse s = let (result,ahead) = parseOn (preSplit s) in result;
+	myParse :: String -> Tree.Node;
+	myParse s = parseOn (preSplit s) 

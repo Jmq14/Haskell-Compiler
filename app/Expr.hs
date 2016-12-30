@@ -1,10 +1,13 @@
 module Expr where
+	import qualified Variable as Variable;
+
+	import qualified Data.Map as Map;
 	
 	data DataType = BoolType | FloatType | StringType | CharType | PairType DataType DataType | ErrorType deriving (Show, Eq);
 
 	data OperatorType = NotOperator | AndOperator | OrOperator | PlusOperator | MinusOperator | MultiplicationOperator | DivisionOperator | EqualOperator | LessOperator | LeqOperator | GreatOperator | GeqOperator | ConsOperator | CarOperator | CdrOperator deriving (Show, Eq);
 
-	data Constant = BoolConstant Bool | FloatConstant Float | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | ErrorConstant deriving (Show, Eq);
+	data Constant = BoolConstant Bool | FloatConstant Float | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | VariableConstant Variable.Variable | ErrorConstant deriving (Show, Eq);
 
 	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr deriving (Show, Eq);
 
@@ -74,30 +77,32 @@ module Expr where
 	cdrConstant (PairConstant (x,y)) = y
 	cdrConstant _ = ErrorConstant
 
-	valueOfExpr :: Expr -> Constant
-	valueOfExpr EmptyExpr = error "Something Wrong!";
-	valueOfExpr (NewConstant (BoolConstant x)) = BoolConstant x;
-	valueOfExpr (NewConstant (FloatConstant x)) = FloatConstant x;
-	valueOfExpr (NewConstant ErrorConstant) = ErrorConstant;
-	valueOfExpr (NewExpr operator datatype expr1 expr2)
-		| operator == NotOperator	= notConstant (valueOfExpr expr1)
-		| operator == OrOperator	= let leftValue = valueOfExpr expr1 in
+	valueOfExpr :: Expr -> Map.Map Variable.Variable Constant -> Constant
+	valueOfExpr EmptyExpr _= error "Something Wrong!";
+	valueOfExpr (NewConstant (BoolConstant x)) _ = BoolConstant x;
+	valueOfExpr (NewConstant (FloatConstant x)) _ = FloatConstant x;
+	valueOfExpr (NewConstant ErrorConstant) _ = ErrorConstant;
+	valueOfExpr (NewConstant (VariableConstant nowvar)) variable =
+		Map.findWithDefault ErrorConstant nowvar variable;
+	valueOfExpr (NewExpr operator datatype expr1 expr2) variable
+		| operator == NotOperator	= notConstant (valueOfExpr expr1 variable)
+		| operator == OrOperator	= let leftValue = valueOfExpr expr1 variable in
 			if ( leftValue == ErrorConstant || leftValue == (BoolConstant True))
 				then leftValue
-				else valueOfExpr expr2
-		| operator == AndOperator	= let leftValue = valueOfExpr expr1 in
+				else valueOfExpr expr2 variable
+		| operator == AndOperator	= let leftValue = valueOfExpr expr1 variable in
 			if ( leftValue == ErrorConstant || leftValue == (BoolConstant False))
 				then leftValue
-				else valueOfExpr expr2
-		| operator == PlusOperator = plusConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == MinusOperator = minusConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == MultiplicationOperator = multiplicationConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == DivisionOperator = divisionConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == EqualOperator = equalConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == LessOperator = lessConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == LeqOperator = leqConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == GreatOperator = greatConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == GeqOperator = geqConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == ConsOperator = consConstant (valueOfExpr expr1) (valueOfExpr expr2)
-		| operator == CarOperator = carConstant (valueOfExpr expr1)
-		| operator == CdrOperator = cdrConstant (valueOfExpr expr1)
+				else valueOfExpr expr2 variable
+		| operator == PlusOperator = plusConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == MinusOperator = minusConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == MultiplicationOperator = multiplicationConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == DivisionOperator = divisionConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == EqualOperator = equalConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == LessOperator = lessConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == LeqOperator = leqConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == GreatOperator = greatConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == GeqOperator = geqConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == ConsOperator = consConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
+		| operator == CarOperator = carConstant (valueOfExpr expr1 variable)
+		| operator == CdrOperator = cdrConstant (valueOfExpr expr1 variable)

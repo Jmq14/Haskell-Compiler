@@ -21,6 +21,12 @@ module ParseStatement where
 		| x == ")"		= (Tree.Nil,xs)
 		| otherwise		= let (statement1,newAhead1) = parseStatement (x:xs) ; (statement2,newAhead2) = parseStatementList newAhead1 in (Tree.StatementListNode statement1 statement2,newAhead2)
 
+	parsePrint :: [String] -> (Tree.Node,[String])
+	parsePrint [] = (Tree.ErrorNode,[])
+	parsePrint (x:xs)
+		| x == ")"		= (Tree.Nil,xs)
+		| otherwise		= let (expr,newAhead) = ParseExpr.parseExpr (x:xs) in (Tree.PrintNode expr,newAhead)
+
 	parseBracketStatement :: [String] -> (Tree.Node,[String])
 	parseBracketStatement [] = undefined;
 	parseBracketStatement (x:xs)
@@ -28,6 +34,7 @@ module ParseStatement where
 		| x == "if"		= parseIfStatement xs
 		| x == "while"	= parseWhileStatement xs
 		| x == "begin"	= parseStatementList xs
+		| x == "print"	= parsePrint xs
 
 	parseStatement :: [String]-> (Tree.Node,[String])
 	parseStatement [] = (Tree.Nil,[]);

@@ -1,5 +1,6 @@
 module ParseExpr where
 	import qualified Expr as Expr;
+	import qualified Variable as Variable;
 
 	parseTwoExpr :: [String] -> (Expr.Expr,Expr.Expr,[String])
 	parseTwoExpr x = let 
@@ -85,4 +86,8 @@ module ParseExpr where
 		| otherwise		=
 			if ((head x) >= '0' && (head x) <= '9')
 				then parseFloat (x:xs)
-				else (Expr.EmptyExpr,(x:xs))
+				else
+					let var = Variable.parseVariable x in
+						if (var == Variable.ErrorVariable)
+							then (Expr.EmptyExpr,(x:xs))
+							else (Expr.NewConstant (Expr.VariableConstant var),xs)

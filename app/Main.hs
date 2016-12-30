@@ -1,8 +1,12 @@
 module Main where
 	import qualified Parser as Parser
 	import qualified Expr as Expr
+	import qualified Tree as Tree
+	import qualified Variable as Variable
+
 	import System.Environment
 	import System.Exit
+
 	import qualified Data.Map as Map
 	import qualified Data.List.Split as Split
 
@@ -24,15 +28,15 @@ module Main where
 	reConcat [] = ""
 	reConcat (x:xs) = x ++ " " ++ (reConcat xs)
 
-	printValueandWork newState newVariable newExpr = do
-		print (Expr.valueOfExpr newExpr)
-		replWork newExpr newVariable
+--	printValueandWork newState variable newExpr = do
+--		print (Expr.valueOfExpr newExpr new)
+--		replWork newExpr newVariable
 
-	replWork preState preVariable = do
+	replWork state variable = do
 		line <- getLine
 		let x = Split.splitOn " " line in
 			if (x == [])
-				then replWork preState preVariable
+				then replWork state variable
 				else
 					if ((head x) == ":q")
 						then print "Goodbye"
@@ -40,21 +44,20 @@ module Main where
 							if ((head x) == ":i")
 								then do
 									print (reConcat (tail x))
-									printValueandWork preVariable preVariable (Parser.myParse( (reConcat (tail x))))
+									let newState = Parser.myParse ( reConcat (tail x) ) ; newVariable = Tree.runNode (newState,variable,"") in replWork newState newVariable
+									print "\n"
 								else 
 									if ((head x) == ":t")
 										then do
-											print preState
-											replWork preState preVariable
+											print state
+											replWork state variable
 										else do
 											print "Invalid operation"
 	
 	normalWork input operator output = do
 		if (operator == "value")
-			then 
-				if (output == "")
-					then print (Expr.valueOfExpr (Parser.myParse input))
-					else writeFile output (show (Expr.valueOfExpr (Parser.myParse input)))
+			then do
+				let x = Tree.runNode (Parser.myParse input,Map.empty,output) in print ""
 			else 
 				if (output == "")
 					then print (Parser.myParse input)
@@ -62,7 +65,7 @@ module Main where
 	
 	mainWork m =  do
 		if (Map.member "-repl" m)
-			then replWork Expr.EmptyExpr Map.empty 
+			then replWork Tree.Nil Map.empty 
 			else
 				if (Map.member "-i" m)
 					then do
