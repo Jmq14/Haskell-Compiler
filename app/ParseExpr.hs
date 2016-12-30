@@ -56,6 +56,16 @@ module ParseExpr where
 	parseFloat :: [String] -> (Expr.Expr,[String])
 	parseFloat (x:xs) = (Expr.NewConstant (Expr.FloatConstant (read x :: Float)),xs); 
 
+	parseChar :: String -> Expr.Expr
+	parseChar ('\'':x:'\'':[]) = Expr.NewConstant (Expr.CharConstant x)
+	parseChar _ = Expr.EmptyExpr
+
+	parseString :: String -> Expr.Expr
+	parseString s =
+		if ((head s) == '\"' && (last s) == '\"')
+			then Expr.NewConstant (Expr.StringConstant (init (tail s)))
+			else Expr.EmptyExpr
+
 	parseBracketExpr :: [String] -> (Expr.Expr,[String])
 	parseBracketExpr (x:xs)
 		| x == "not"	= parseNotExpr xs
@@ -87,7 +97,13 @@ module ParseExpr where
 			if ((head x) >= '0' && (head x) <= '9')
 				then parseFloat (x:xs)
 				else
-					let var = Variable.parseVariable x in
-						if (var == Variable.ErrorVariable)
-							then (Expr.EmptyExpr,(x:xs))
-							else (Expr.NewConstant (Expr.VariableConstant var),xs)
+					if (head x == '\'')
+						then (parseChar x,xs)
+						else
+							if (head x == '\"')
+								then (parseString x,xs)
+								else
+									let var = Variable.parseVariable x in
+										if (var == Variable.ErrorVariable)
+											then (Expr.EmptyExpr,(x:xs))
+											else (Expr.NewConstant (Expr.VariableConstant var),xs)

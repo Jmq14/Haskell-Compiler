@@ -45,7 +45,7 @@ module Main where
 							if ((head x) == ":i")
 								then do
 									--print (ParseStatement.parseStatement ["(","begin","skip","skip",")"])
-									--print (Parser.preSplit (reConcat (tail x)))
+									print (Parser.preSplit (reConcat (tail x)))
 									print (Parser.myParse (reConcat (tail x)))
 									let newState = Parser.myParse ( reConcat (tail x) ) ; (newVariable,output) = Tree.runNode (newState,variable,"") in printValueandWork newState newVariable output
 								else 
