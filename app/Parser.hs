@@ -18,9 +18,16 @@ module Parser where
 	repl '\t' = ' '
 	repl c = c
 
+	convertBracket :: String -> String
+	convertBracket [] = []
+	convertBracket (x:xs)
+		| x == '(' = ' ':x:' ':convertBracket xs
+		| x == ')' = ' ':x:' ':convertBracket xs
+		| otherwise = x:convertBracket xs 
+
 	-- Step 3
 	preSplitSpace :: String -> [String]
-	preSplitSpace s = Split.splitOn " " (map repl s)
+	preSplitSpace s = Split.splitOn " " $ convertBracket $ map repl s
 
 	-- Step 0
 	preSplitLine :: String -> [String]
@@ -33,7 +40,7 @@ module Parser where
 		r = Split.splitOn "'" x
 		handle [] = []
 		handle (r:[]) = preSplitSpace r
-		handle (r: rs) = preSplitSpace r ++ ["'" ++ head rs ++ "'"] ++ handle (tail rs)
+		handle (r:rs) = preSplitSpace r ++ ["'" ++ head rs ++ "'"] ++ handle (tail rs)
 
 	-- Step 1
 	preSplitString :: [String] -> [String]
@@ -42,7 +49,7 @@ module Parser where
 		r = Split.splitOn "''" x
 		handle [] = []
 		handle (r:[]) = preSplitChar r
-		handle (r: rs) = preSplitChar r ++ ["''" ++ head rs ++ "''"] ++ handle (tail rs)
+		handle (r:rs) = preSplitChar r ++ ["''" ++ head rs ++ "''"] ++ handle (tail rs)
 
 	preSplit :: String -> [String]
 	preSplit = filt . preSplitString . preSplitLine
