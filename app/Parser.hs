@@ -18,18 +18,36 @@ module Parser where
 	repl '\t' = ' '
 	repl c = c
 
-	preSplit2 :: [String] -> [String]
-	preSplit2 [] = []
-	preSplit2 (x:xs) = (Split.splitOn " " (map repl x)) ++ (preSplit2 xs)
+	preSplitSpace :: String -> [String]
+	preSplitSpace s = Split.splitOn " " (map repl s)
+
+	preSplitLine :: String -> [String]
+	preSplitLine = Split.splitOn "\n"
+
+	preSplitChar :: [String] -> [String]
+	preSplitChar [] = []
+	preSplitChar (x:xs) = handle r ++ preSplitChar xs where
+		r = Split.splitOn "'" x
+		handle [] = []
+		handle (r:[]) = preSplitSpace r
+		handle (r: rs) = preSplitSpace r ++ ["'" ++ head rs ++ "'"] ++ handle (tail rs)
+
+	preSplitString :: [String] -> [String]
+	preSplitString [] = []
+	preSplitString (x:xs) = handle r ++ preSplitChar xs where
+		r = Split.splitOn "\"" x
+		handle [] = []
+		handle (r:[]) = preSplitSpace r
+		handle (r: rs) = preSplitSpace r ++ ["\"" ++ head rs ++ "\""] ++ handle (tail rs)
 
 	preSplit :: String -> [String]
-	preSplit s = filt (preSplit2 (Split.splitOn "\n" s));
+	preSplit = filt . preSplitString . preSplitChar . preSplitLine
 
 	parseProgram :: [String] -> (Tree.Node,[String])
-	parseProgram s = ParseStatement.parseStatement s;
+	parseProgram s = ParseStatement.parseStatement s
 
-	parseOn :: [String] -> (Expr.Expr,[String]);
-	parseOn s = ParseExpr.parseExpr s;
+	parseOn :: [String] -> (Expr.Expr,[String])
+	parseOn s = ParseExpr.parseExpr s
 	
-	myParse :: String -> Expr.Expr;
-	myParse s = let (result,ahead) = parseOn (preSplit s) in result;
+	myParse :: String -> Expr.Expr
+	myParse s = let (result,ahead) = parseOn (preSplit s) in result
