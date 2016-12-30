@@ -49,7 +49,7 @@ module Parser where
 		r = Split.splitOn "''" x
 		handle [] = []
 		handle (r:[]) = preSplitChar r
-		handle (r:rs) = preSplitChar r ++ ["''" ++ head rs ++ "''"] ++ handle (tail rs)
+		handle (r:rs) = preSplitChar r ++ ["\"" ++ head rs ++ "\""] ++ handle (tail rs)
 
 	preSplit :: String -> [String]
 	preSplit = filt . preSplitString . preSplitLine

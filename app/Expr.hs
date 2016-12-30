@@ -81,6 +81,8 @@ module Expr where
 	valueOfExpr EmptyExpr _= error "Something Wrong!";
 	valueOfExpr (NewConstant (BoolConstant x)) _ = BoolConstant x;
 	valueOfExpr (NewConstant (FloatConstant x)) _ = FloatConstant x;
+	valueOfExpr (NewConstant (CharConstant x)) _ = CharConstant x;
+	valueOfExpr (NewConstant (StringConstant x)) _ = StringConstant x;
 	valueOfExpr (NewConstant ErrorConstant) _ = ErrorConstant;
 	valueOfExpr (NewConstant (VariableConstant nowvar)) variable =
 		Map.findWithDefault ErrorConstant nowvar variable;
