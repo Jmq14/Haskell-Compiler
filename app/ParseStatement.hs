@@ -27,14 +27,24 @@ module ParseStatement where
 		| x == ")"		= (Tree.Nil,x:xs)
 		| otherwise		= let (expr,newAhead) = ParseExpr.parseExpr (x:xs) in (Tree.PrintNode expr,newAhead)
 
+	parseMakeVector :: [String] -> (Tree.Node,[String])
+	parseMakeVector [] = (Tree.ErrorNode,[])
+	parseMakeVector (x:xs) = let var = Variable.parseVariable x ; (expr,newAhead) = ParseExpr.parseExpr xs in (Tree.MakeVectorNode var expr,newAhead)
+
+	parseVectorSet :: [String] -> (Tree.Node,[String])
+	parseVectorSet [] = (Tree.ErrorNode,[])
+	parseVectorSet (x:xs) = let var = Variable.parseVariable x ; (expr1,newAhead1) = ParseExpr.parseExpr xs ; (expr2,newAhead2) = ParseExpr.parseExpr newAhead1 in (Tree.VectorSetNode var expr1 expr2,newAhead2)
+
 	parseBracketStatement :: [String] -> (Tree.Node,[String])
-	parseBracketStatement [] = undefined;
+	parseBracketStatement [] = (Tree.ErrorNode,[]);
 	parseBracketStatement (x:xs)
-		| x == "set!"	= parseSetVariable xs
-		| x == "if"		= parseIfStatement xs
-		| x == "while"	= parseWhileStatement xs
-		| x == "begin"	= parseStatementList xs
-		| x == "print"	= parsePrint xs
+		| x == "set!"			= parseSetVariable xs
+		| x == "if"				= parseIfStatement xs
+		| x == "while"			= parseWhileStatement xs
+		| x == "begin"			= parseStatementList xs
+		| x == "print"			= parsePrint xs
+		| x == "make-vector"	= parseMakeVector xs
+		| x == "vector-set!"	= parseVectorSet xs
 
 	parseStatement :: [String]-> (Tree.Node,[String])
 	parseStatement [] = (Tree.Nil,[]);

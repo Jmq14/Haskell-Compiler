@@ -53,8 +53,12 @@ module ParseExpr where
 	parseCdrExpr :: [String] -> (Expr.Expr,[String])
 	parseCdrExpr x = let (newExpr,newAhead) = parseExpr x in (Expr.NewExpr Expr.CdrOperator (Expr.getPairRightType newExpr) newExpr Expr.EmptyExpr,newAhead);
 
+	parseVectorRefExpr :: [String] -> (Expr.Expr,[String])
+	parseVectorRefExpr [] = (Expr.EmptyExpr,[])
+	parseVectorRefExpr (x:xs) = let var = Variable.parseVariable x ; (expr,newAhead) = parseExpr xs in (Expr.ArrayExpr var expr,newAhead)
+
 	parseFloat :: [String] -> (Expr.Expr,[String])
-	parseFloat (x:xs) = (Expr.NewConstant (Expr.FloatConstant (read x :: Float)),xs); 
+	parseFloat (x:xs) = (Expr.NewConstant (Expr.FloatConstant (read x :: Rational)),xs); 
 
 	parseChar :: String -> Expr.Expr
 	parseChar ('\'':x:'\'':[]) = Expr.NewConstant (Expr.CharConstant x)
@@ -68,21 +72,22 @@ module ParseExpr where
 
 	parseBracketExpr :: [String] -> (Expr.Expr,[String])
 	parseBracketExpr (x:xs)
-		| x == "not"	= parseNotExpr xs
-		| x == "and"	= parseAndExpr xs
-		| x == "or"		= parseOrExpr xs
-		| x == "+"		= parsePlusExpr xs
-		| x == "-"		= parseMinusExpr xs
-		| x == "*"		= parseMultiplicationExpr xs
-		| x == "/"		= parseDivisionExpr xs
-		| x == "="		= parseEqualExpr xs
-		| x == "<"		= parseLessExpr xs
-		| x == "<="		= parseLeqExpr xs
-		| x == ">"		= parseGreatExpr xs
-		| x == ">="		= parseGeqExpr xs
-		| x == "cons"	= parseConsExpr xs
-		| x == "car"	= parseCarExpr xs
-		| x == "cdr"	= parseCdrExpr xs
+		| x == "not"			= parseNotExpr xs
+		| x == "and"			= parseAndExpr xs
+		| x == "or"				= parseOrExpr xs
+		| x == "+"				= parsePlusExpr xs
+		| x == "-"				= parseMinusExpr xs
+		| x == "*"				= parseMultiplicationExpr xs
+		| x == "/"				= parseDivisionExpr xs
+		| x == "="				= parseEqualExpr xs
+		| x == "<"				= parseLessExpr xs
+		| x == "<="				= parseLeqExpr xs
+		| x == ">"				= parseGreatExpr xs
+		| x == ">="				= parseGeqExpr xs
+		| x == "cons"			= parseConsExpr xs
+		| x == "car"			= parseCarExpr xs
+		| x == "cdr"			= parseCdrExpr xs
+		| x == "vector-ref"		= parseVectorRefExpr xs
 
 	parseExpr :: [String] -> (Expr.Expr,[String])
 	parseExpr [] = (Expr.EmptyExpr,[]);

@@ -2,14 +2,38 @@ module Expr where
 	import qualified Variable as Variable;
 
 	import qualified Data.Map as Map;
+	import qualified Data.Ratio as Ratio;
 	
-	data DataType = BoolType | FloatType | StringType | CharType | PairType DataType DataType | ErrorType deriving (Show, Eq);
+	data DataType = BoolType | FloatType | StringType | CharType | PairType DataType DataType | ArrayType | ErrorType deriving (Show, Eq);
 
 	data OperatorType = NotOperator | AndOperator | OrOperator | PlusOperator | MinusOperator | MultiplicationOperator | DivisionOperator | EqualOperator | LessOperator | LeqOperator | GreatOperator | GeqOperator | ConsOperator | CarOperator | CdrOperator deriving (Show, Eq);
 
-	data Constant = BoolConstant Bool | FloatConstant Float | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | VariableConstant Variable.Variable | ErrorConstant deriving (Show, Eq);
+	data Constant = BoolConstant Bool | FloatConstant Rational | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | VariableConstant Variable.Variable | ArrayConstant Integer (Map.Map Integer Constant) | ErrorConstant deriving (Show, Eq);
 
-	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr deriving (Show, Eq);
+	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr | ArrayExpr Variable.Variable Expr deriving (Show, Eq);
+
+	checkConstantWhetherInt :: Constant -> Bool
+	checkConstantWhetherInt (FloatConstant f) = (Ratio.denominator f) == 1
+
+	convertConstantToInteger :: Constant -> Integer
+	convertConstantToInteger (FloatConstant f) = Ratio.numerator f
+
+	checkConstantWhetherArray :: Constant -> Bool
+	checkConstantWhetherArray (ArrayConstant _ _) = True
+	checkConstantWhetherArray _ = False
+
+	visitArrayValue :: Constant -> Integer -> Constant
+	visitArrayValue (ArrayConstant len mem) idx =
+		if (idx >= 0 && idx < len)
+			then Map.findWithDefault ErrorConstant idx mem
+			else ErrorConstant
+
+	updateArrayValue :: Constant -> Integer -> Constant -> Constant
+	updateArrayValue (ArrayConstant len mem) idx val =
+		if (idx>=0 && idx<len)
+			then (ArrayConstant len (Map.insert idx val mem))
+			else ErrorConstant
+	updateArrayValue _ _ _ = ErrorConstant
 
 	getExprType :: Expr -> DataType
 	getExprType EmptyExpr						= ErrorType
@@ -77,6 +101,13 @@ module Expr where
 	cdrConstant (PairConstant (x,y)) = y
 	cdrConstant _ = ErrorConstant
 
+	valueOfArrayElement :: Constant -> Integer -> Constant
+	valueOfArrayElement (ArrayConstant len z) idx =
+		if (idx < len && idx >= 0)
+			then Map.findWithDefault ErrorConstant idx z
+			else ErrorConstant
+	valueOfArrayElement _ _ = ErrorConstant
+
 	valueOfExpr :: Expr -> Map.Map Variable.Variable Constant -> Constant
 	valueOfExpr EmptyExpr _= error "Something Wrong!";
 	valueOfExpr (NewConstant (BoolConstant x)) _ = BoolConstant x;
@@ -108,3 +139,9 @@ module Expr where
 		| operator == ConsOperator = consConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
 		| operator == CarOperator = carConstant (valueOfExpr expr1 variable)
 		| operator == CdrOperator = cdrConstant (valueOfExpr expr1 variable)
+	
+	valueOfExpr (ArrayExpr var expr) variable =
+		let value = valueOfExpr expr variable ; nowvar = Map.findWithDefault ErrorConstant var variable in 
+			if ((checkConstantWhetherInt value) && (checkConstantWhetherArray nowvar))
+				then visitArrayValue nowvar (convertConstantToInteger value)
+				else ErrorConstant 
