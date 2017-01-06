@@ -1,7 +1,8 @@
 import os
 import sys
 
-os.system("stack build");
+if (os.system("stack build")!=0):
+	fsdfasdfdasafsd
 
 strs = ""
 for a in range(1,len(sys.argv)):

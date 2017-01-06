@@ -2,6 +2,8 @@ module ParseExpr where
 	import qualified Expr as Expr;
 	import qualified Variable as Variable;
 
+	import qualified Data.Ratio as Ratio;
+
 	parseTwoExpr :: [String] -> (Expr.Expr,Expr.Expr,[String])
 	parseTwoExpr x = let 
 			(newExpr1 , newAhead1) = parseExpr x
@@ -58,7 +60,7 @@ module ParseExpr where
 	parseVectorRefExpr (x:xs) = let var = Variable.parseVariable x ; (expr,newAhead) = parseExpr xs in (Expr.ArrayExpr var expr,newAhead)
 
 	parseFloat :: [String] -> (Expr.Expr,[String])
-	parseFloat (x:xs) = (Expr.NewConstant (Expr.FloatConstant (read x :: Rational)),xs); 
+	parseFloat (x:xs) = (Expr.NewConstant (Expr.FloatConstant (Ratio.approxRational (read x :: Double) 0.000001)),xs); 
 
 	parseChar :: String -> Expr.Expr
 	parseChar ('\'':x:'\'':[]) = Expr.NewConstant (Expr.CharConstant x)

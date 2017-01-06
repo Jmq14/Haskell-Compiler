@@ -4,12 +4,14 @@ module Main where
 	import qualified Tree as Tree
 	import qualified Variable as Variable
 	import qualified ParseStatement as ParseStatement
+	import qualified ParseExpr as ParseExpr
 
 	import System.Environment
 	import System.Exit
 
 	import qualified Data.Map as Map
 	import qualified Data.List.Split as Split
+	import qualified Data.Ratio as Ratio
 
 	getASTTree s = Parser.myParse s;
 	
@@ -55,8 +57,14 @@ module Main where
 											replWork state variable
 										else do
 											print "Invalid operation"
+											replWork state variable
 	
 	normalWork input operator output = do
+		--print (Ratio.approxRational (read "0.1" :: Double) 0.01)
+		--print (Variable.parseVariable "a")
+		--print (ParseExpr.parseExpr ["10"])
+		--print (ParseStatement.parseMakeVector ["a","10"])
+		--print (Parser.myParse input)
 		if (operator == "value")
 			then do
 				let (state,result) = Tree.runNode (Parser.myParse input,Map.empty,"") in

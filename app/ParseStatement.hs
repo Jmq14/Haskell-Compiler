@@ -45,6 +45,7 @@ module ParseStatement where
 		| x == "print"			= parsePrint xs
 		| x == "make-vector"	= parseMakeVector xs
 		| x == "vector-set!"	= parseVectorSet xs
+		| otherwise				= (Tree.ErrorNode,xs)
 
 	parseStatement :: [String]-> (Tree.Node,[String])
 	parseStatement [] = (Tree.Nil,[]);

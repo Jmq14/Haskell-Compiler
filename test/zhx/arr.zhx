@@ -1,0 +1,7 @@
+(begin
+	(make-vector a 10)
+	(vector-set! a 4 2)
+	(print
+		(vector-ref a 4)
+	)
+)
