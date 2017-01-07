@@ -60,10 +60,7 @@ module Main where
 											replWork state variable
 	
 	normalWork input operator output = do
-		--print (Ratio.approxRational (read "0.1" :: Double) 0.01)
-		--print (Variable.parseVariable "a")
-		--print (ParseExpr.parseExpr ["10"])
-		--print (ParseStatement.parseMakeVector ["a","10"])
+		--print (Parser.preSplit input)
 		--print (Parser.myParse input)
 		if (operator == "value")
 			then do
