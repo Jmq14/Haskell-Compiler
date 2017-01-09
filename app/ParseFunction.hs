@@ -16,7 +16,7 @@ module ParseFunction where
 
 	parseFunctionIniside :: [String] -> (Variable.Variable,Integer,[Variable.Variable],[String])
 	parseFunctionIniside ("(":(x:xs)) = let function = Variable.parseVariable x ; (numVar,varList,newAhead) = parseVariableList xs in (function,numVar,varList,newAhead)
-	parseFunctionIniside _ = error "sb"
+	parseFunctionIniside _ = error "There is a missing \"(\""
 
 	parseFunction :: [String] -> (Variable.Variable,Integer,Function.Function,[String])
 	parseFunction (x:(xs:xss)) =

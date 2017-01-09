@@ -3,6 +3,8 @@ module Expr where
 
 	import qualified Data.Map as Map;
 	import qualified Data.Ratio as Ratio;
+
+	import qualified Debug.Trace as Trace
 	
 	data DataType = BoolType | FloatType | StringType | CharType | PairType DataType DataType | ArrayType | ErrorType deriving (Show, Eq);
 
@@ -39,7 +41,7 @@ module Expr where
 	valueOfArrayElement (ArrayConstant len z) idx =
 		if (idx < len && idx >= 0)
 			then Map.findWithDefault ErrorConstant idx z
-			else error "sb"
+			else error ("The index " ++ (show idx) ++ " is an avaliable index of range [0," ++ (show len) ++ ")")
 	valueOfArrayElement _ _ = ErrorConstant
 
 	getConstantType :: Constant -> DataType

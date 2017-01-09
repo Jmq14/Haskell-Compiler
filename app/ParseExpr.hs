@@ -73,7 +73,7 @@ module ParseExpr where
 			else Expr.EmptyExpr
 
 	parseExprList :: [String] -> (Integer,[Expr.Expr],[String])
-	parseExprList [] = error "sb"
+	parseExprList [] = error "There is a missing \")\""
 	parseExprList (x:xs) =
 		if (x == ")")
 			then (0,[],x:xs)
@@ -82,7 +82,7 @@ module ParseExpr where
 					 (numVar+1,expr:exprList,newAhead2)
 
 	parseFunctionRef :: [String] -> (Expr.Expr,[String])
-	parseFunctionRef [] = error "sb"
+	parseFunctionRef [] = error "No function name"
 	parseFunctionRef (x:xs) =
 		let functionName = Variable.parseVariable x ;
 			(numVar,exprList,newAhead) = parseExprList xs in
