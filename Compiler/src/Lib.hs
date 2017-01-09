@@ -1,6 +1,8 @@
-module Lib
-    ( someFunc
-    ) where
+module Lib where
+	import System.Environment
+	import System.Exit
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+	compiler :: IO ()
+	compiler = do
+		a <- getArgs
+		print a
