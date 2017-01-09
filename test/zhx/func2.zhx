@@ -1,0 +1,14 @@
+(define (fib n)
+	(begin
+		(if (= n 1) (return 1) skip)
+		(if (= n 0) (return 0) skip)
+		(return (+ (fib (- n 1)) (fib (- n 2))))
+	)
+)
+
+(define (main)
+	(begin
+		(print (fib 10))
+		(return 0)
+	)
+)

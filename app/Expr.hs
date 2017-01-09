@@ -10,7 +10,7 @@ module Expr where
 
 	data Constant = BoolConstant Bool | FloatConstant Rational | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | VariableConstant Variable.Variable | ArrayConstant Integer (Map.Map Integer Constant) | ErrorConstant deriving (Show, Eq);
 
-	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr | ArrayExpr Variable.Variable Expr deriving (Show, Eq);
+	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr | ArrayExpr Variable.Variable Expr | FunctionExpr Variable.Variable Integer [Expr] deriving (Show, Eq);
 
 	checkConstantWhetherInt :: Constant -> Bool
 	checkConstantWhetherInt (FloatConstant f) = (Ratio.denominator f) == 1
@@ -35,6 +35,20 @@ module Expr where
 			else ErrorConstant
 	updateArrayValue _ _ _ = ErrorConstant
 
+	valueOfArrayElement :: Constant -> Integer -> Constant
+	valueOfArrayElement (ArrayConstant len z) idx =
+		if (idx < len && idx >= 0)
+			then Map.findWithDefault ErrorConstant idx z
+			else error "sb"
+	valueOfArrayElement _ _ = ErrorConstant
+
+	getConstantType :: Constant -> DataType
+	getConstantType (BoolConstant _)	= BoolType
+	getConstantType (FloatConstant _)	= FloatType
+	getConstantType (StringConstant _)	= StringType
+	getConstantType (CharConstant _)	= CharType
+	getConstantType _					= ErrorType
+
 	getExprType :: Expr -> DataType
 	getExprType EmptyExpr						= ErrorType
 	getExprType (NewConstant (BoolConstant _))	= BoolType
@@ -49,6 +63,10 @@ module Expr where
 	getPairRightType :: Expr -> DataType
 	getPairRightType (NewExpr _ (PairType l r) _ _) = r;
 	getPairRightType _ = ErrorType;
+
+	checkWhetherBool :: Constant -> Bool
+	checkWhetherBool (BoolConstant _) = True
+	checkWhetherBool _ = False
 
 	notConstant :: Constant -> Constant
 	notConstant (BoolConstant x) = BoolConstant (not x)
@@ -100,48 +118,3 @@ module Expr where
 	cdrConstant :: Constant -> Constant
 	cdrConstant (PairConstant (x,y)) = y
 	cdrConstant _ = ErrorConstant
-
-	valueOfArrayElement :: Constant -> Integer -> Constant
-	valueOfArrayElement (ArrayConstant len z) idx =
-		if (idx < len && idx >= 0)
-			then Map.findWithDefault ErrorConstant idx z
-			else ErrorConstant
-	valueOfArrayElement _ _ = ErrorConstant
-
-	valueOfExpr :: Expr -> Map.Map Variable.Variable Constant -> Constant
-	valueOfExpr EmptyExpr _= error "Something Wrong!";
-	valueOfExpr (NewConstant (BoolConstant x)) _ = BoolConstant x;
-	valueOfExpr (NewConstant (FloatConstant x)) _ = FloatConstant x;
-	valueOfExpr (NewConstant (CharConstant x)) _ = CharConstant x;
-	valueOfExpr (NewConstant (StringConstant x)) _ = StringConstant x;
-	valueOfExpr (NewConstant ErrorConstant) _ = ErrorConstant;
-	valueOfExpr (NewConstant (VariableConstant nowvar)) variable =
-		Map.findWithDefault ErrorConstant nowvar variable;
-	valueOfExpr (NewExpr operator datatype expr1 expr2) variable
-		| operator == NotOperator	= notConstant (valueOfExpr expr1 variable)
-		| operator == OrOperator	= let leftValue = valueOfExpr expr1 variable in
-			if ( leftValue == ErrorConstant || leftValue == (BoolConstant True))
-				then leftValue
-				else valueOfExpr expr2 variable
-		| operator == AndOperator	= let leftValue = valueOfExpr expr1 variable in
-			if ( leftValue == ErrorConstant || leftValue == (BoolConstant False))
-				then leftValue
-				else valueOfExpr expr2 variable
-		| operator == PlusOperator = plusConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == MinusOperator = minusConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == MultiplicationOperator = multiplicationConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == DivisionOperator = divisionConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == EqualOperator = equalConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == LessOperator = lessConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == LeqOperator = leqConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == GreatOperator = greatConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == GeqOperator = geqConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == ConsOperator = consConstant (valueOfExpr expr1 variable) (valueOfExpr expr2 variable)
-		| operator == CarOperator = carConstant (valueOfExpr expr1 variable)
-		| operator == CdrOperator = cdrConstant (valueOfExpr expr1 variable)
-	
-	valueOfExpr (ArrayExpr var expr) variable =
-		let value = valueOfExpr expr variable ; nowvar = Map.findWithDefault ErrorConstant var variable in 
-			if ((checkConstantWhetherInt value) && (checkConstantWhetherArray nowvar))
-				then visitArrayValue nowvar (convertConstantToInteger value)
-				else ErrorConstant 

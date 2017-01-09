@@ -72,6 +72,22 @@ module ParseExpr where
 			then Expr.NewConstant (Expr.StringConstant (init (tail s)))
 			else Expr.EmptyExpr
 
+	parseExprList :: [String] -> (Integer,[Expr.Expr],[String])
+	parseExprList [] = error "sb"
+	parseExprList (x:xs) =
+		if (x == ")")
+			then (0,[],x:xs)
+			else let (expr,newAhead1) = parseExpr (x:xs) ;
+					 (numVar,exprList,newAhead2) = parseExprList newAhead1 in
+					 (numVar+1,expr:exprList,newAhead2)
+
+	parseFunctionRef :: [String] -> (Expr.Expr,[String])
+	parseFunctionRef [] = error "sb"
+	parseFunctionRef (x:xs) =
+		let functionName = Variable.parseVariable x ;
+			(numVar,exprList,newAhead) = parseExprList xs in
+			(Expr.FunctionExpr functionName numVar exprList,newAhead)
+
 	parseBracketExpr :: [String] -> (Expr.Expr,[String])
 	parseBracketExpr (x:xs)
 		| x == "not"			= parseNotExpr xs
@@ -90,6 +106,7 @@ module ParseExpr where
 		| x == "car"			= parseCarExpr xs
 		| x == "cdr"			= parseCdrExpr xs
 		| x == "vector-ref"		= parseVectorRefExpr xs
+		| otherwise				= parseFunctionRef (x:xs)
 
 	parseExpr :: [String] -> (Expr.Expr,[String])
 	parseExpr [] = (Expr.EmptyExpr,[]);

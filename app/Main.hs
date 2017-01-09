@@ -5,9 +5,15 @@ module Main where
 	import qualified Variable as Variable
 	import qualified ParseStatement as ParseStatement
 	import qualified ParseExpr as ParseExpr
+	import qualified Run as Run
 
 	import System.Environment
 	import System.Exit
+	import System.IO
+
+	import GHC.IO.Handle
+
+	import Control.DeepSeq
 
 	import qualified Data.Map as Map
 	import qualified Data.List.Split as Split
@@ -36,43 +42,49 @@ module Main where
 		replWork state variable
 
 	replWork state variable = do
-		line <- getLine
-		let x = Split.splitOn " " line in
-			if (x == [])
-				then replWork state variable
-				else
-					if ((head x) == ":q")
-						then print "Goodbye"
-						else
-							if ((head x) == ":i")
-								then do
-									--print (ParseStatement.parseStatement ["(","begin","skip","skip",")"])
-									print (Parser.preSplit (reConcat (tail x)))
-									print (Parser.myParse (reConcat (tail x)))
-									let newState = Parser.myParse ( reConcat (tail x) ) ; (newVariable,output) = Tree.runNode (newState,variable,"") in printValueandWork newState newVariable output
-								else 
-									if ((head x) == ":t")
-										then do
-											print state
-											replWork state variable
-										else do
-											print "Invalid operation"
-											replWork state variable
+		putStrLn "Need to be done"
+--		line <- getLine
+--		let x = Split.splitOn " " line in
+--			if (x == [])
+--				then replWork state variable
+--				else
+--					if ((head x) == ":q")
+--						then print "Goodbye"
+--						else
+--							if ((head x) == ":i")
+--								then do
+--									--print (ParseStatement.parseStatement ["(","begin","skip","skip",")"])
+--									print (Parser.preSplit (reConcat (tail x)))
+--									print (Parser.myParse (reConcat (tail x)))
+--									let newState = Parser.myParse ( reConcat (tail x) ) ; (newVariable,output) = Tree.runNode (newState,variable,"") in printValueandWork newState newVariable output
+--								else 
+--									if ((head x) == ":t")
+--										then do
+--											print state
+--											replWork state variable
+--										else do
+--											print "Invalid operation"
+--											replWork state variable
 	
 	normalWork input operator output = do
-		--print (Parser.preSplit input)
-		--print (Parser.myParse input)
-		if (operator == "value")
-			then do
-				let (state,result) = Tree.runNode (Parser.myParse input,Map.empty,"") in
-					if (output == "")
-						then print result
-						else writeFile output result
-			else 
-				if (output == "")
-					then print (Parser.myParse input)
-					else writeFile output (show (Parser.myParse input))
-	
+		let functionList = Parser.myParse input in do
+			if (output /= "")
+				then do
+					b <- writeFile output ""
+					fileHandle <- openFile output WriteMode
+					c <- hDuplicateTo fileHandle stderr
+					d <- hDuplicateTo fileHandle stdout
+					putStr ""
+				else do
+					putStr ""
+			if (operator == "value")
+				then do
+					--(Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty)) `deepseq` putStr ""
+					let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty) in putStrLn ("return value:" ++ (show returnValue))
+				else do
+					putStr ""--functionList
+			putStr ""
+
 	mainWork m =  do
 		if (Map.member "-repl" m)
 			then replWork Tree.Nil Map.empty 
@@ -81,7 +93,7 @@ module Main where
 					then do
 						input <- readFile (Map.findWithDefault "error" "-i" m)
 						normalWork input "value" (Map.findWithDefault "" "-o" m)
-					else 
+ 					else 
 						if (Map.member "-t" m)
 							then do
 								input <- readFile (Map.findWithDefault "error" "-t" m)

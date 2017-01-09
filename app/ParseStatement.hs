@@ -4,6 +4,8 @@ module ParseStatement where
 	import qualified Tree as Tree
 	import qualified Variable as Variable
 
+	import qualified Debug.Trace as Trace
+
 	parseSetVariable :: [String] -> (Tree.Node,[String])
 	parseSetVariable [] = (Tree.ErrorNode,[])
 	parseSetVariable (x:xs) = let (expr,newAhead) = ParseExpr.parseExpr xs in (Tree.SetVariableNode (Variable.parseVariable x) expr,newAhead)
@@ -35,6 +37,10 @@ module ParseStatement where
 	parseVectorSet [] = (Tree.ErrorNode,[])
 	parseVectorSet (x:xs) = let var = Variable.parseVariable x ; (expr1,newAhead1) = ParseExpr.parseExpr xs ; (expr2,newAhead2) = ParseExpr.parseExpr newAhead1 in (Tree.VectorSetNode var expr1 expr2,newAhead2)
 
+	parseReturn :: [String] -> (Tree.Node,[String])
+	parseReturn [] = error "sb"
+	parseReturn (x:xs) = let (expr,newAhead) = ParseExpr.parseExpr (x:xs) in (Tree.ReturnNode expr,newAhead)
+
 	parseBracketStatement :: [String] -> (Tree.Node,[String])
 	parseBracketStatement [] = (Tree.ErrorNode,[]);
 	parseBracketStatement (x:xs)
@@ -45,6 +51,7 @@ module ParseStatement where
 		| x == "print"			= parsePrint xs
 		| x == "make-vector"	= parseMakeVector xs
 		| x == "vector-set!"	= parseVectorSet xs
+		| x == "return"			= parseReturn xs
 		| otherwise				= (Tree.ErrorNode,xs)
 
 	parseStatement :: [String]-> (Tree.Node,[String])
@@ -53,6 +60,6 @@ module ParseStatement where
 		| x == "skip"	= (Tree.Nil,xs)
 		| x == "("		= let (node,newAhead) = parseBracketStatement xs in
 							if ((newAhead == []) || ((head newAhead) /= ")"))
-								then (Tree.ErrorNode,newAhead)
+								then error "There is a missing \")\""
 								else (node,tail newAhead)
 		| otherwise		= (Tree.Nil,(x:xs))
