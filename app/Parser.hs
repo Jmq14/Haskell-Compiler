@@ -1,11 +1,18 @@
 module Parser where
 	import qualified Tree as Tree;
 	import qualified Expr as Expr;
+	import qualified Function as Function;
+	import qualified Variable as Variable;
+
+	import qualified ParseFunction as ParseFunction;
 	import qualified ParseExpr as ParseExpr;
 	import qualified ParseStatement as ParseStatement;
 
 	import qualified Data.List.Split as Split;
 	import qualified Data.Map as Map;
+
+	import qualified Debug.Trace as Trace
+
 
 	filt :: [String] -> [String]
 	filt [] = []
@@ -54,15 +61,17 @@ module Parser where
 	preSplit :: String -> [String]
 	preSplit = filt . preSplitString . preSplitLine
 
-	parseProgram :: [String] -> (Tree.Node,[String])
-	parseProgram s = ParseStatement.parseStatement s
+	--parseProgram :: [String] -> (Tree.Node,[String])
+	--parseProgram s = ParseStatement.parseStatement s
+	parseProgram :: [String] -> (Map.Map (Variable.Variable,Integer) Function.Function)
+	parseProgram s = ParseFunction.parseFunctionList s
 
-	parseOn :: [String] -> Tree.Node;
-	parseOn s =
-		let (node,ahead) = parseProgram s in
-			if (ahead /= []) 
-				then Tree.ErrorNode
-				else node
+	parseOn :: [String] -> (Map.Map (Variable.Variable,Integer) Function.Function)
+	parseOn s = parseProgram s
+--		let (node,ahead) = parseProgram s in
+--			if (ahead /= []) 
+--				then Tree.ErrorNode
+--				else node
 	
-	myParse :: String -> Tree.Node;
-	myParse s = parseOn (preSplit s) 
+	myParse :: String -> (Map.Map (Variable.Variable,Integer) Function.Function)
+	myParse s = Trace.trace (show (preSplit s)) (parseOn (preSplit s) )

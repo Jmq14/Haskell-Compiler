@@ -1,0 +1,6 @@
+(define (main)
+	(begin
+		(print 1)
+		(return 0)
+	)
+)

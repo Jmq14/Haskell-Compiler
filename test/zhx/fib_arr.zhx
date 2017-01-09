@@ -1,0 +1,24 @@
+(begin 
+	(make-vector f 100)
+	(vector-set! f 0 0)
+	(vector-set! f 1 1)
+	(set! n 2)
+	(while (<= n 50)
+		(begin
+			(vector-set! f n
+				(+
+					(vector-ref f (- n 1))
+					(vector-ref f (- n 2))
+				)
+			)
+			(set! n (+ n 1))
+		)
+	)
+	(set! n 0)
+	(while (<= n 50)
+		(begin
+			(print (vector-ref f n))
+			(set! n (+ n 1))
+		)
+	)
+)
