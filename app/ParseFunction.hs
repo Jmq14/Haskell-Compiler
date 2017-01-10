@@ -16,7 +16,7 @@ module ParseFunction where
 
 	parseFunctionIniside :: [String] -> (Variable.Variable,Integer,[Variable.Variable],[String])
 	parseFunctionIniside ("(":(x:xs)) = let function = Variable.parseVariable x ; (numVar,varList,newAhead) = parseVariableList xs in (function,numVar,varList,newAhead)
-	parseFunctionIniside _ = error "There is a missing \"(\""
+	parseFunctionIniside _ = error "Compile error: there is a missing \"(\" in the definition of function"
 
 	parseFunction :: [String] -> (Variable.Variable,Integer,Function.Function,[String])
 	parseFunction (x:(xs:xss)) =
@@ -24,9 +24,9 @@ module ParseFunction where
 			then let (function,numVar,varList,newAhead1) = parseFunctionIniside xss ; (node,newAhead2) = ParseStatement.parseStatement newAhead1 in 
 				if ((head newAhead2) == ")")
 					then (function,numVar,Function.NewFunction function numVar varList node,tail newAhead2) 
-					else error "The function should end with \")\""
-			else error "The function should begin with \"(define\""
-	parseFunction _ = error "There are extra words in the last"
+					else error "Compile error: the function should end with \")\""
+			else error "Compile error: the function should begin with \"(define\""
+	parseFunction _ = error "Compile error: there are some extra words in the last"
 
 	parseFunctionList :: [String] -> (Map.Map (Variable.Variable,Integer) Function.Function)
 	parseFunctionList [] = Map.empty

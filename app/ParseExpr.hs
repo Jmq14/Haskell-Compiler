@@ -56,7 +56,7 @@ module ParseExpr where
 	parseCdrExpr x = let (newExpr,newAhead) = parseExpr x in (Expr.NewExpr Expr.CdrOperator (Expr.getPairRightType newExpr) newExpr Expr.EmptyExpr,newAhead);
 
 	parseVectorRefExpr :: [String] -> (Expr.Expr,[String])
-	parseVectorRefExpr [] = (Expr.EmptyExpr,[])
+	parseVectorRefExpr [] = error ("Compile error: there is missing parameters in vector reference")
 	parseVectorRefExpr (x:xs) = let var = Variable.parseVariable x ; (expr,newAhead) = parseExpr xs in (Expr.ArrayExpr var expr,newAhead)
 
 	parseFloat :: [String] -> (Expr.Expr,[String])
@@ -64,16 +64,16 @@ module ParseExpr where
 
 	parseChar :: String -> Expr.Expr
 	parseChar ('\'':x:'\'':[]) = Expr.NewConstant (Expr.CharConstant x)
-	parseChar _ = Expr.EmptyExpr
+	parseChar x = error ("Compile error: " ++ (show x) ++ " is now an available Char")
 
 	parseString :: String -> Expr.Expr
 	parseString s =
 		if ((head s) == '\"' && (last s) == '\"')
 			then Expr.NewConstant (Expr.StringConstant (init (tail s)))
-			else Expr.EmptyExpr
+			else error ("Compile error: there is a missing \"\"\" in the end of the string")
 
 	parseExprList :: [String] -> (Integer,[Expr.Expr],[String])
-	parseExprList [] = error "There is a missing \")\""
+	parseExprList [] = error "Compile error: there is a missing \")\""
 	parseExprList (x:xs) =
 		if (x == ")")
 			then (0,[],x:xs)
@@ -82,7 +82,7 @@ module ParseExpr where
 					 (numVar+1,expr:exprList,newAhead2)
 
 	parseFunctionRef :: [String] -> (Expr.Expr,[String])
-	parseFunctionRef [] = error "No function name"
+	parseFunctionRef [] = error "Compile error: no function name in function call"
 	parseFunctionRef (x:xs) =
 		let functionName = Variable.parseVariable x ;
 			(numVar,exprList,newAhead) = parseExprList xs in
@@ -109,13 +109,13 @@ module ParseExpr where
 		| otherwise				= parseFunctionRef (x:xs)
 
 	parseExpr :: [String] -> (Expr.Expr,[String])
-	parseExpr [] = (Expr.EmptyExpr,[]);
+	parseExpr [] = error ("Compile error: missing expression");
 	parseExpr (x:xs) 
 		| x == "True"	= (Expr.NewConstant (Expr.BoolConstant True),xs)
 		| x == "False"	= (Expr.NewConstant (Expr.BoolConstant False),xs)
 		| x == "("		= let (expr,newAhead) = parseBracketExpr xs in
 							if ((newAhead == []) || ((head newAhead) /= ")"))
-								then (Expr.EmptyExpr,newAhead)
+								then error ("Compile error: there is a missing \")\"")
 								else (expr,tail newAhead)
 		| otherwise		=
 			if ((head x) >= '0' && (head x) <= '9')

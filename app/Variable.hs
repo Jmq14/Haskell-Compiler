@@ -11,6 +11,6 @@ module Variable where
 	parseVariable :: String -> Variable
 	parseVariable s =
 		if ((elementIn s KeyWord.keywords) || (elementIn False (map (\x -> elementIn x KeyWord.variableChar) s)))
-			then error (s ++ " is not an avaliable variable name")
+			then error ("Compile Error: " ++ s ++ " is not an avaliable variable name")
 			else NewVariable s
 
