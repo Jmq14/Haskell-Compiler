@@ -1,3 +1,3 @@
 module Main where
-	import Lib
-	main = compiler
+    import Lib
+    main = compiler
