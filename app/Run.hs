@@ -15,7 +15,7 @@ module Run where
 			if (value == Expr.ErrorConstant)
 				then let res = Map.findWithDefault Expr.ErrorConstant var globalVariable in
 					if (res == Expr.ErrorConstant)
-						then error "sb"
+						then error ("Variable " ++ (show var) ++ " undefined")
 						else res
 				else value
 
@@ -56,7 +56,7 @@ module Run where
 
 	runNode :: (Tree.Node,Map.Map Variable.Variable Expr.Constant,Map.Map Variable.Variable Expr.Constant,Map.Map (Variable.Variable,Integer) Function.Function,Expr.Constant) -> (Map.Map Variable.Variable Expr.Constant,Map.Map Variable.Variable Expr.Constant,Expr.Constant)
 
-	runNode (Tree.ErrorNode,globalVariable,localVariable,functionList,returnValue) = error "sb"
+	runNode (Tree.ErrorNode,globalVariable,localVariable,functionList,returnValue) = error "undefined"
 
 	runNode (Tree.Nil,globalVariable,localVariable,functionList,returnValue) = (globalVariable,localVariable,returnValue)
 
@@ -78,10 +78,9 @@ module Run where
 						then runInNode (Tree.WhileNode condition statement,newGlobalVariable,localVariable,functionList,returnValue)
 						else
 							if (value == (Expr.BoolConstant False))
-								then (globalVariable,newGlobalVariable,returnValue)
+								then (newGlobalVariable,localVariable,returnValue)
 								else error "sb"
 			else (globalVariable,localVariable,returnValue)
-
 
 	runNode (Tree.IfNode condition branch1 branch2,globalVariable,localVariable,functionList,returnValue) = 
 		if (returnValue == Expr.ErrorConstant)
@@ -92,7 +91,7 @@ module Run where
 						else
 							if (value == (Expr.BoolConstant False))
 								then runNode (branch2,newGlobalVariable,localVariable,functionList,returnValue)
-								else error "sb"
+								else error ((show condition) ++ ":" ++ (show value) ++ " is not a bool value")
 			else (globalVariable,localVariable,returnValue)
 
 	runNode (Tree.PrintNode expr,globalVariable,localVariable,functionList,returnValue) =
@@ -116,8 +115,8 @@ module Run where
 		if (returnValue == Expr.ErrorConstant)
 			then
 				let varValue = visitVariable var globalVariable localVariable; 
-					(idxValue,newGlobalVariable1) = valueOfExpr idx localVariable globalVariable functionList ; 
-					(cons,newGlobalVariable2) = valueOfExpr value localVariable newGlobalVariable1 functionList in
+					(idxValue,newGlobalVariable1) = valueOfExpr idx globalVariable localVariable functionList ; 
+					(cons,newGlobalVariable2) = valueOfExpr value newGlobalVariable1 localVariable functionList in
 					if ((Expr.checkConstantWhetherArray varValue) && (Expr.checkConstantWhetherInt idxValue))
 						then updateVariable var (Expr.updateArrayValue varValue (Expr.convertConstantToInteger idxValue) cons) newGlobalVariable2 localVariable returnValue
 						else error "sb"
