@@ -13,7 +13,6 @@ module Parser where
 
 	import qualified Debug.Trace as Trace
 
-
 	filt :: [String] -> [String]
 	filt [] = []
 	filt (x:xs) =
@@ -61,17 +60,11 @@ module Parser where
 	preSplit :: String -> [String]
 	preSplit = filt . preSplitString . preSplitLine
 
-	--parseProgram :: [String] -> (Tree.Node,[String])
-	--parseProgram s = ParseStatement.parseStatement s
 	parseProgram :: [String] -> (Map.Map (Variable.Variable,Integer) Function.Function)
 	parseProgram s = ParseFunction.parseFunctionList s
 
 	parseOn :: [String] -> (Map.Map (Variable.Variable,Integer) Function.Function)
 	parseOn s = parseProgram s
---		let (node,ahead) = parseProgram s in
---			if (ahead /= []) 
---				then Tree.ErrorNode
---				else node
 	
 	myParse :: String -> (Map.Map (Variable.Variable,Integer) Function.Function)
 	myParse s = Trace.trace (show (preSplit s)) (parseOn (preSplit s) )
