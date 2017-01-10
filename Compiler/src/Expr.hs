@@ -8,7 +8,7 @@ module Expr where
 
 	data OperatorType = NotOperator | AndOperator | OrOperator | PlusOperator | MinusOperator | MultiplicationOperator | DivisionOperator | EqualOperator | LessOperator | LeqOperator | GreatOperator | GeqOperator | ConsOperator | CarOperator | CdrOperator deriving (Show, Eq);
 
-	data Constant = BoolConstant Bool | FloatConstant Rational | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | VariableConstant Variable.Variable | ArrayConstant Integer (Map.Map Integer Constant) | ErrorConstant deriving (Show, Eq);
+	data Constant = BoolConstant Bool | FloatConstant Rational | StringConstant String | CharConstant Char | PairConstant (Constant,Constant) | VariableConstant Variable.Variable | ArrayConstant Integer (Map.Map Integer Constant) | ErrorConstant deriving (Eq);
 
 	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr | ArrayExpr Variable.Variable Expr | FunctionExpr Variable.Variable Integer [Expr] deriving (Show, Eq);
 
@@ -118,3 +118,13 @@ module Expr where
 	cdrConstant :: Constant -> Constant
 	cdrConstant (PairConstant (x,y)) = y
 	cdrConstant _ = ErrorConstant
+
+	instance Show Constant where
+		show (BoolConstant c) = show c
+		show (FloatConstant c) = show (fromRational c :: Float)
+		show (StringConstant c) = show c
+		show (CharConstant c) = show c
+		show (PairConstant (c1, c2)) = "(" ++ show c1 ++ "," ++ show c2 ++ ")"
+		show (VariableConstant c) = show c
+		show (ArrayConstant num c) = show (Map.toList c)
+		show ErrorConstant = "error"

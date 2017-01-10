@@ -3,7 +3,7 @@ module Variable where
 
 	import qualified Data.Map as Map;
 
-	data Variable = NewVariable String | ErrorVariable deriving (Show, Eq, Ord);
+	data Variable = NewVariable String | ErrorVariable deriving (Eq, Ord);
 
 	elementIn :: Eq a => a -> [a] -> Bool
 	elementIn x xs = foldl (||) False (map (\y -> y == x) xs)
@@ -14,3 +14,6 @@ module Variable where
 			then error (s ++ " is not an avaliable variable name")
 			else NewVariable s
 
+	instance Show Variable where
+		show ErrorVariable = "ErrorVariable"
+		show (NewVariable string) = string

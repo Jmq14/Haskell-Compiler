@@ -25,6 +25,7 @@ library
                      , ParseFunction
                      , Parser
                      , Run
+                     , Translator
                      , Lib
   build-depends:       base >= 4.7 && < 5
                      , containers

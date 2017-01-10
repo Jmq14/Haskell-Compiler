@@ -9,7 +9,7 @@ module Lib where
     import qualified Tree as Tree
     import qualified Variable as Variable
     import qualified ParseExpr as ParseExpr
-    import qualified Run as Run
+    import qualified Translator as Translator
 
     import qualified Data.Map as Map
 
@@ -48,8 +48,9 @@ module Lib where
         output <- openFile (Map.findWithDefault "" "out" m) WriteMode
         c <- hDuplicateTo output stderr
         d <- hDuplicateTo output stdout
+        putStrLn (show(Parser.myParse input))
         let functionList = Parser.myParse input in do
-            let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList, Map.empty) in putStrLn ("return value:" ++ (show returnValue))
+            putStrLn (Translator.genFunctionList (0, functionList))
         hClose output
 
     compiler :: IO ()
