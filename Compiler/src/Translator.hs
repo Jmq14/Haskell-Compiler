@@ -9,7 +9,9 @@ module Translator where
 --  translate function (entrance)
 	genFunctionList :: (Int, Map.Map (Variable.Variable,Integer) Function.Function) -> String
 	genFunctionList (indent, funcList) = 
-		let list = Map.toList funcList in concat [(replicate indent ' ') ++ "def " ++ show function ++ "(" ++ genParam varList ++ "):\n" ++ genNode ((indent+4), node) | (_, Function.NewFunction function numVar varList node) <- list]
+		let list = Map.toList funcList in 
+		concat [if show function == "main" then genNode (0, node) ++ "\n"
+			else (replicate indent ' ') ++ "def " ++ show function ++ "(" ++ genParam varList ++ "):\n" ++ genNode ((indent+4), node) ++ "\n" | (_, Function.NewFunction function numVar varList node) <- list]
 
 	genParam :: [Variable.Variable] -> String
 	genParam [] = ""
@@ -29,12 +31,14 @@ module Translator where
 	genNode (indent, Tree.StatementListNode stmt next) = genNode (indent, stmt) ++ "\n" ++ genNode (indent, next)
 
 --Nil
-	genNode (indent, Tree.Nil) = "\n"
+	genNode (indent, Tree.Nil) = ""
 
 --Error
 	genNode (indent, Tree.ErrorNode) = error "syntax error occurs!"
 
 --Set Variable
+	genNode (indent, Tree.SetVariableNode (Variable.NewVariable "void") expr) = 
+		replicate indent ' ' ++ genExpr expr
 	genNode (indent, Tree.SetVariableNode nowVariable expr) = 
 		replicate indent ' ' ++ show nowVariable ++ " = " ++ genExpr expr
 
@@ -47,7 +51,7 @@ module Translator where
 		replicate indent ' ' ++ "if " ++ genExpr condition ++ ":\n" ++ genNode (indent+4, branch1) 
 
 	genNode (indent, Tree.IfNode condition branch1 branch2) = 
-		replicate indent ' ' ++ "if " ++ genExpr condition ++ ":\n" ++ genNode (indent+4, branch1) ++ "\n" ++ replicate indent ' ' ++ "else:\n" ++ genNode (indent+4, branch2)
+		replicate indent ' ' ++ "if " ++ genExpr condition ++ ":\n" ++ genNode (indent+4, branch1) ++ replicate indent ' ' ++ "else:\n" ++ genNode (indent+4, branch2)
 
 --Make Vector
 	genNode (indent, Tree.MakeVectorNode var len) = 
@@ -61,6 +65,7 @@ module Translator where
 	genNode (indent, Tree.PrintNode expr) = replicate indent ' ' ++ "print " ++ genExpr expr
 
 --Return 
+	genNode (0, Tree.ReturnNode _) = ""
 	genNode (indent, Tree.ReturnNode expr) = replicate indent ' ' ++ "return " ++ genExpr expr
 
 -------------
@@ -87,8 +92,8 @@ module Translator where
 	genExpr (Expr.NewExpr Expr.GreatOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " > " ++ genExpr expr2 ++ ")"
 	genExpr (Expr.NewExpr Expr.GeqOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " >= " ++ genExpr expr2 ++ ")"
 	genExpr (Expr.NewExpr Expr.ConsOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ ", " ++ genExpr expr2 ++ ")"
-	genExpr (Expr.NewExpr Expr.CarOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " , " ++ genExpr expr2 ++ ")"
-	genExpr (Expr.NewExpr Expr.CdrOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " , " ++ genExpr expr2 ++ ")"
+--	genExpr (Expr.NewExpr Expr.CarOperator (Expr.PairType l r) _ _) = genExpr l 
+--	genExpr (Expr.NewExpr Expr.CdrOperator (Expr.PairType l r) _ _) = genExpr r
 
 --Function Call
 	genExpr (Expr.FunctionExpr function numVar params) = show function ++ "(" ++ genArguments params ++ ")"
