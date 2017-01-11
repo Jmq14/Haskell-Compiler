@@ -16,6 +16,8 @@ module Repl where
 	import qualified Data.Map as Map
 	import qualified Data.List.Split as Split
 
+	import qualified Control.Exception as Exception
+
 	reConcat :: [String] -> String
 	reConcat [] = ""
 	reConcat (x:xs) = x ++ " " ++ (reConcat xs)
@@ -80,27 +82,35 @@ module Repl where
 		let (value,newVariable) = Run.valueOfExpr expr variable Map.empty functionList in do
 			putStrLn (show value)
 			replWork (NewExpr expr) newVariable functionList
+	
+	replMind x preWork variable functionList = do
+		if ((head x) == ":q")
+			then putStrLn "Goodbye World"
+			else
+				if ((head x) == ":i")
+					then let parseResult = replParse (Parser.preSplit (reConcat (tail x))) in do
+						replRun parseResult variable functionList
+					else
+						if ((head x) == ":t")
+							then do
+								putStrLn (show preWork)
+								replWork preWork variable functionList
+							else do
+								putStrLn "Invalid operation"
+								replWork preWork variable functionList
+
+	catchAny :: IO a -> (Exception.SomeException -> IO a) -> IO a
+	catchAny = Exception.catch
 
 	replWork preWork variable functionList = do
 		line <- getLine
 		let x = Split.splitOn " " line in
-			if (x == [])
+			if (x == [""])
 				then replWork preWork variable functionList
-				else
-					if ((head x) == ":q")
-						then putStrLn "Goodbye World"
-						else
-							if ((head x) == ":i")
-								then let parseResult = replParse (Parser.preSplit (reConcat (tail x))) in do
-									replRun parseResult variable functionList
-								else
-									if ((head x) == ":t")
-										then do
-											putStrLn (show preWork)
-											replWork preWork variable functionList
-										else do
-											putStrLn "Invalid operation"
-											replWork preWork variable functionList
+				else catchAny  (replMind x preWork variable functionList) (\err -> do
+						putStrLn (head (Split.splitOn "\n" (show err)))
+						replWork preWork variable functionList
+				)
 	
 	mainWork = do
 		replWork Nil Map.empty Map.empty 
