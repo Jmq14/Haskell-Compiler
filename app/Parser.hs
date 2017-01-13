@@ -67,4 +67,4 @@ module Parser where
 	parseOn s = parseProgram s
 	
 	myParse :: String -> (Map.Map (Variable.Variable,Integer) Function.Function)
-	myParse s = Trace.trace (show (preSplit s)) (parseOn (preSplit s) )
+	myParse s = parseOn (preSplit s)
