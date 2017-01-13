@@ -6,6 +6,7 @@ module Main where
 	import qualified ParseStatement as ParseStatement
 	import qualified ParseExpr as ParseExpr
 	import qualified Run as Run
+	import qualified PrettyPrinter as PrettyPrinter
 
 	import System.Environment
 	import System.Exit
@@ -82,7 +83,7 @@ module Main where
 					--(Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty)) `deepseq` putStr ""
 					let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty) in putStrLn ("return value:" ++ (show returnValue))
 				else do
-					putStr ""--functionList
+					PrettyPrinter.prettyPrinter $ map (\(x,y)->y) $ Map.toAscList functionList
 			putStr ""
 
 	mainWork m =  do
