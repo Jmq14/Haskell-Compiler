@@ -10,14 +10,22 @@ module PrettyPrinter where
         prettyPrinter xs
 
     astPrinter n0 n1 (x:xs) = do
-        if all == [x]
+        if x == "StatementListNode"
             then do
-                printLine (n0 + n1) x
+                if n0 == 1
+                    then do
+                        putStrLn "  StatementListNode"
+                        astPrinter (n0 + 1) 0 xs
+                else do
+                    putStr ""
+                    astPrinter (n0 - 1) 0 xs
+        else if all == [x]
+            then printLine (n0 + n1) x
         else do
-            astPrinter (n0 + 1) 0 all
-        if xs == []
-            then putStr ""
-        else astPrinter n0 1 xs
+            astPrinter (n0 + n1) 0 all
+        if (x /= "StatementListNode") && (xs /= [])
+            then astPrinter n0 1 xs
+        else putStr ""
         where all = mySplit x
 
     printLine n x = do
