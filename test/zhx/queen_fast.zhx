@@ -1,0 +1,71 @@
+(define (check i j)
+	(begin
+		(if (vector-ref col j)
+			(return False)
+			skip
+		) 
+		(if (vector-ref right (+ i j))
+			(return False)
+			skip
+		)
+		(if (vector-ref left (+ (- i j) n))
+			(return False)
+			skip
+		)
+		(return True)
+	)
+)
+
+(define (dfs i j)
+	(begin
+		(if (>= i n)
+			(begin
+				(set! ans (+ ans 1))
+				(return 0) 
+			)
+			skip
+		)
+		(while (< j n)
+			(begin
+				(if (check i j)
+					(begin
+						(vector-set! col j True)
+						(vector-set! left (+ (- i j) n) True)
+						(vector-set! right (+ i j) True)
+						(set! void (dfs (+ i 1) 0))
+						(vector-set! col j False)
+						(vector-set! left (+ (- i j) n) False)
+						(vector-set! right (+ i j) False)
+						(set! j (+ j 1))
+					)
+					(set! j (+ j 1))
+				)
+			)
+		)
+		(return 0)
+	)
+)
+
+(define (main)
+	(begin
+		(set! ans 0)
+		(set! n 10)
+		(set! m (+ n (+ n 1)))
+		(make-vector col m)
+		(make-vector left m)
+		(make-vector right m)
+		(set! i 0)
+		(while (< i m)
+			(begin
+				(vector-set! col i False)
+				(vector-set! left i False)
+				(vector-set! right i False)
+				(set! i (+ i 1))
+			)
+		)
+		(set! void (dfs 0 0))
+		(print ans)
+		(return 0)
+	)
+)
+

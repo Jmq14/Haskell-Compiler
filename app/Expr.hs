@@ -16,6 +16,7 @@ module Expr where
 
 	checkConstantWhetherInt :: Constant -> Bool
 	checkConstantWhetherInt (FloatConstant f) = (Ratio.denominator f) == 1
+	checkConstantWhetherInt _ = False
 
 	convertConstantToInteger :: Constant -> Integer
 	convertConstantToInteger (FloatConstant f) = Ratio.numerator f

@@ -20,6 +20,7 @@ module Main where
 	import GHC.IO.Handle
 
 	import Control.DeepSeq
+	import qualified Control.Exception as Exception
 
 	import qualified Data.Map as Map
 	import qualified Data.List.Split as Split
@@ -38,8 +39,11 @@ module Main where
 		| x == "-o" = Map.insert "-o" y (analyzeArgs xs)
 		| x == "-repl" = Map.insert "-repl" "233" (analyzeArgs (y:xs))
 		| otherwise = analyzeArgs (y:xs)
-	
-	normalWork input operator output = do
+
+	catchAny :: IO a -> (Exception.SomeException -> IO a) -> IO a
+	catchAny = Exception.catch
+
+	normalMind input operator output = do
 		let functionList = Parser.myParse input in do
 			if (output /= "")
 				then do
@@ -52,11 +56,13 @@ module Main where
 					putStr ""
 			if (operator == "value")
 				then do
-					--(Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty)) `deepseq` putStr ""
 					let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty) in putStrLn ("return value:" ++ (show returnValue))
 				else do
 					PrettyPrinter.prettyPrinter $ map (\(x,y)->y) $ Map.toAscList functionList
 			putStr ""
+	
+	normalWork input operator output = do
+		catchAny (normalMind input operator output) (\err -> do putStrLn (head (Split.splitOn "\n" (show err))))
 
 	mainWork m =  do
 		if (Map.member "-repl" m)
@@ -77,6 +83,6 @@ module Main where
 	main = do
 --		line <- getLine
 		a <- getArgs
-		print a
+		-- print a
 		mainWork (analyzeArgs a)
 --		print (valueOfExpr (getASTTree line))

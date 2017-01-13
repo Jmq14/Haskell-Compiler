@@ -43,7 +43,10 @@ module Run where
 	runFunction (functionName,numParm,params,functionList,globalVariable) =
 		let (Function.NewFunction var num varlist node) = lookupFunction functionName numParm functionList ;
 			(newGlobalVariable,_,returnValue) = runNode (node,globalVariable,createLocalVariable varlist params,functionList,Expr.ErrorConstant)
-		in (newGlobalVariable,returnValue)
+		in 
+			if (returnValue == Expr.ErrorConstant)
+				then error "Runtime error: function should have return value"
+				else (newGlobalVariable,returnValue)
 
 
 --	Run statement mod
