@@ -75,12 +75,12 @@ module Repl where
 					putStr ""
 					replWork (NewNode node) newVariable functionList 
 				else do
-					putStrLn ("Return " ++ (show returnValue))
+					putStrLn ("Return " ++ (Expr.notPrettyShow returnValue))
 					replWork (NewNode node) newVariable functionList 
 
 	replRun (NewExpr expr) variable functionList =
 		let (value,newVariable) = Run.valueOfExpr expr variable Map.empty functionList in do
-			putStrLn (show value)
+			putStrLn (Expr.notPrettyShow value)
 			replWork (NewExpr expr) newVariable functionList
 	
 	replMind x preWork variable functionList = do

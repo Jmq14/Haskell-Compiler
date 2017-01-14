@@ -56,7 +56,7 @@ module Main where
 					putStr ""
 			if (operator == "value")
 				then do
-					let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty) in putStrLn ("return value:" ++ (show returnValue))
+					let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty) in putStrLn ("return value:" ++ (Expr.notPrettyShow returnValue))
 				else do
 					PrettyPrinter.prettyPrinter $ map (\(x,y)->y) $ Map.toAscList functionList
 			putStr ""

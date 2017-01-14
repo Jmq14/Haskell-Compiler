@@ -99,7 +99,7 @@ module Run where
 
 	runNode (Tree.PrintNode expr,globalVariable,localVariable,functionList,returnValue) =
 		if (returnValue == Expr.ErrorConstant)
-			then let (var,newGlobalVariable) = valueOfExpr expr globalVariable localVariable functionList in Trace.trace (show var) (newGlobalVariable,localVariable,returnValue)
+			then let (var,newGlobalVariable) = valueOfExpr expr globalVariable localVariable functionList in Trace.trace (Expr.notPrettyShow var) (newGlobalVariable,localVariable,returnValue)
 			else (globalVariable,localVariable,returnValue)
 
 	runNode (Tree.MakeVectorNode var len,globalVariable,localVariable,functionList,returnValue) = 

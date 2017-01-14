@@ -14,6 +14,25 @@ module Expr where
 
 	data Expr = EmptyExpr | NewConstant Constant | NewExpr OperatorType DataType Expr Expr | ArrayExpr Variable.Variable Expr | FunctionExpr Variable.Variable Integer [Expr] deriving (Show, Eq);
 
+	notPrettyShow :: Constant -> String
+	notPrettyShow (BoolConstant x) = show x
+	notPrettyShow (FloatConstant x) = show x 
+	notPrettyShow (StringConstant x) = "''" ++ x ++ "''"
+	notPrettyShow (CharConstant x) = "'" ++ (x:[]) ++ "'"
+	notPrettyShow (PairConstant (l,r)) = "(" ++ (notPrettyShow l) ++ "," ++ (notPrettyShow r) ++ ")"
+	notPrettyShow (ArrayConstant len x) = "[" ++ (anotherShow 0 len x) ++ "]"
+	notPrettyShow ErrorConstant = "undefined"
+
+	anotherShow :: Integer -> Integer -> Map.Map Integer Constant -> String
+	anotherShow idx len x =
+		if (idx == len)
+			then ""
+			else
+				let value = Map.findWithDefault ErrorConstant idx x in
+					if (idx == 0)
+						then (notPrettyShow value) ++ (anotherShow (idx+1) len x)
+						else "," ++ (notPrettyShow value) ++ (anotherShow (idx+1) len x)
+
 	checkConstantWhetherInt :: Constant -> Bool
 	checkConstantWhetherInt (FloatConstant f) = (Ratio.denominator f) == 1
 	checkConstantWhetherInt _ = False
