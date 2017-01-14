@@ -122,7 +122,7 @@ module Expr where
 	instance Show Constant where
 		show (BoolConstant c) = show c
 		show (FloatConstant c) 
-			|Ratio.denominator c == 1 = show (truncate c)
+			|checkConstantWhetherInt (FloatConstant c) = show (convertConstantToInteger (FloatConstant c))
 			|otherwise = show (fromRational c :: Float)
 		show (StringConstant c) = show c
 		show (CharConstant c) = show c

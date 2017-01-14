@@ -50,7 +50,7 @@ module Lib where
         d <- hDuplicateTo output stdout
         putStrLn (show(Parser.myParse input))
         let functionList = Parser.myParse input in do
-            putStrLn (Translator.genFunctionList (0, functionList))
+            putStrLn (Translator.translate2python functionList)
         hClose output
 
     compiler :: IO ()
