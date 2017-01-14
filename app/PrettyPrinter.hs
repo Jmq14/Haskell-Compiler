@@ -20,7 +20,10 @@ module PrettyPrinter where
                     putStr ""
                     astPrinter (n0 - 1) 0 xs
         else if all == [x]
-            then printLine (n0 + n1) x
+            then do
+                if '%' `elem` x
+                    then printLine (n0 + n1) (rationToFraction (words x))
+                else printLine (n0 + n1) x
         else do
             astPrinter (n0 + n1) 0 all
         if (x /= "StatementListNode") && (xs /= [])
@@ -70,3 +73,18 @@ module PrettyPrinter where
         else if (y == ']')
             then mySplit1 n False (x ++ [y]) ys
         else mySplit1 n isArray (x ++ [y]) ys
+
+    rationToFraction [] = ""
+    rationToFraction [a] = a
+    rationToFraction (a:b:c) = 
+        if b == "%"
+            then (show ((read a) / (read denominator))) ++ (drop (length denominator) headC) ++ (' ':(rationToFraction (tail c)))
+        else a ++ (' ':(rationToFraction (b:c)))
+        where headC = head c
+              denominator = getNum headC
+
+    getNum [] = []
+    getNum (x:xs) =
+        if isDigit x
+            then (x:(getNum xs))
+        else []
