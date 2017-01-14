@@ -82,7 +82,7 @@ module Run where
 						else
 							if (value == (Expr.BoolConstant False))
 								then (newGlobalVariable,localVariable,returnValue)
-								else error ("Runtime Error: " ++ (show value) ++ " is not an available while condition value")
+								else error ("Runtime Error: " ++ (Expr.notPrettyShow value) ++ " is not an available while condition value")
 			else (globalVariable,localVariable,returnValue)
 
 	runNode (Tree.IfNode condition branch1 branch2,globalVariable,localVariable,functionList,returnValue) = 
@@ -94,7 +94,7 @@ module Run where
 						else
 							if (value == (Expr.BoolConstant False))
 								then runNode (branch2,newGlobalVariable,localVariable,functionList,returnValue)
-								else error ("Runtime Error: " ++ (show value) ++ " is not an available if condtion value")
+								else error ("Runtime Error: " ++ (Expr.notPrettyShow value) ++ " is not an available if condtion value")
 			else (globalVariable,localVariable,returnValue)
 
 	runNode (Tree.PrintNode expr,globalVariable,localVariable,functionList,returnValue) =
@@ -110,8 +110,8 @@ module Run where
 						then let lenCons = Expr.convertConstantToInteger lenValue in 
 							if (lenCons>0)
 								then updateVariable var (Expr.ArrayConstant lenCons Map.empty) newGlobalVariable localVariable returnValue
-								else error ("Runtime Error: " ++ (show lenValue) ++ " should be positive to be a vector's length")
-						else error ("Runtime Erroor: " ++ (show lenValue) ++ " is not an available vector length")
+								else error ("Runtime Error: " ++ (Expr.notPrettyShow lenValue) ++ " should be positive to be a vector's length")
+						else error ("Runtime Erroor: " ++ (Expr.notPrettyShow lenValue) ++ " is not an available vector length")
 			else (globalVariable,localVariable,returnValue)
 
 	runNode (Tree.VectorSetNode var idx value,globalVariable,localVariable,functionList,returnValue) = 
@@ -123,8 +123,8 @@ module Run where
 					if (Expr.checkConstantWhetherArray varValue)
 						then if (Expr.checkConstantWhetherInt idxValue)
 							then updateVariable var (Expr.updateArrayValue varValue (Expr.convertConstantToInteger idxValue) cons) newGlobalVariable2 localVariable returnValue
-							else error ("Runtime Error: " ++ (show idxValue) ++ " is not an available vector index")
-						else error ("Runtime Error: " ++ (show varValue) ++ " is not a vector")
+							else error ("Runtime Error: " ++ (Expr.notPrettyShow idxValue) ++ " is not an available vector index")
+						else error ("Runtime Error: " ++ (Expr.notPrettyShow varValue) ++ " is not a vector")
 			else (globalVariable,localVariable,returnValue)
 
 	runNode (Tree.ReturnNode expr,globalVariable,localVariable,functionList,returnValue) = 
@@ -153,8 +153,8 @@ module Run where
 						else let (rightValue,newGlobalVariable2) = valueOfExpr expr2 newGlobalVariable1 localVariable functionList in
 							if (Expr.checkWhetherBool rightValue == True)
 								then (rightValue,newGlobalVariable2)
-								else error ("Runtime Error: " ++ (show rightValue) ++ " is not an available value in or operator")
-				else error ("Runtime Error: " ++ (show leftValue) ++ " is not an available value in or operator")
+								else error ("Runtime Error: " ++ (Expr.notPrettyShow rightValue) ++ " is not an available value in or operator")
+				else error ("Runtime Error: " ++ (Expr.notPrettyShow leftValue) ++ " is not an available value in or operator")
 		| operator == Expr.AndOperator	= let (leftValue,newGlobalVariable1) = valueOfExpr expr1 globalVariable localVariable functionList in
 			if (Expr.checkWhetherBool leftValue == True)
 				then
@@ -163,8 +163,8 @@ module Run where
 						else let (rightValue,newGlobalVariable2) = valueOfExpr expr2 newGlobalVariable1 localVariable functionList in
 							if (Expr.checkWhetherBool rightValue == True)
 								then (rightValue,newGlobalVariable2)
-								else error ("Runtime Error: " ++ (show rightValue) ++ " is not an available value in amd operator")
-				else error ("Runtime Error: " ++ (show leftValue) ++ " is not an available value in and operator")
+								else error ("Runtime Error: " ++ (Expr.notPrettyShow rightValue) ++ " is not an available value in amd operator")
+				else error ("Runtime Error: " ++ (Expr.notPrettyShow leftValue) ++ " is not an available value in and operator")
 		| operator == Expr.PlusOperator =
 			let (value1,newGlobalVariable1) = valueOfExpr expr1 globalVariable localVariable functionList ;
 				(value2,newGlobalVariable2) = valueOfExpr expr2 newGlobalVariable1 localVariable functionList in
@@ -213,8 +213,8 @@ module Run where
 			if (Expr.checkConstantWhetherArray nowvar)
 				then if (Expr.checkConstantWhetherInt value)
 					then (Expr.visitArrayValue nowvar (Expr.convertConstantToInteger value),newGlobalVariable)
-					else error ("Runtime Error: " ++ (show value) ++ " is not an available vector index")
-				else error ("Runtime Error: " ++ (show nowvar) ++ " is not a vector")
+					else error ("Runtime Error: " ++ (Expr.notPrettyShow value) ++ " is not an available vector index")
+				else error ("Runtime Error: " ++ (Expr.notPrettyShow nowvar) ++ " is not a vector")
 					
 	valueOfExpr (Expr.FunctionExpr functionName numParm params) globalVariable localVariable functionList =	
 		let (paramsValue,newGlobalVariable1) = getValueOfParams params globalVariable localVariable functionList ;

@@ -62,7 +62,9 @@ module Main where
 			putStr ""
 	
 	normalWork input operator output = do
-		catchAny (normalMind input operator output) (\err -> do putStrLn (head (Split.splitOn "\n" (show err))))
+		catchAny (normalMind input operator output) (\err -> do 
+			putStrLn (head (Split.splitOn "\n" (show err)))
+			putStr "")
 
 	mainWork m =  do
 		if (Map.member "-repl" m)

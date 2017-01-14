@@ -10,7 +10,7 @@ module Variable where
 
 	parseVariable :: String -> Variable
 	parseVariable s =
-		if ((elementIn s KeyWord.keywords) || (elementIn False (map (\x -> elementIn x KeyWord.variableChar) s)))
+		if ((elementIn s KeyWord.keywords) || (elementIn False (map (\x -> elementIn x KeyWord.variableChar) s)) || (elementIn (head s) ['0'..'9']))
 			then error ("Compile Error: " ++ s ++ " is not an avaliable variable name")
 			else NewVariable s
 
