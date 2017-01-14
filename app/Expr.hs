@@ -16,6 +16,7 @@ module Expr where
 
 	checkConstantWhetherInt :: Constant -> Bool
 	checkConstantWhetherInt (FloatConstant f) = (Ratio.denominator f) == 1
+	checkConstantWhetherInt _ = False
 
 	convertConstantToInteger :: Constant -> Integer
 	convertConstantToInteger (FloatConstant f) = Ratio.numerator f
@@ -35,13 +36,16 @@ module Expr where
 		if (idx>=0 && idx<len)
 			then (ArrayConstant len (Map.insert idx val mem))
 			else ErrorConstant
-	updateArrayValue _ _ _ = ErrorConstant
+	updateArrayValue _ _ _ = error "Runtime Error: vector-set! must work on array element."
 
 	valueOfArrayElement :: Constant -> Integer -> Constant
 	valueOfArrayElement (ArrayConstant len z) idx =
 		if (idx < len && idx >= 0)
-			then Map.findWithDefault ErrorConstant idx z
-			else error ("The index " ++ (show idx) ++ " is an avaliable index of range [0," ++ (show len) ++ ")")
+			then let arrValue = Map.findWithDefault ErrorConstant idx z in
+				if (arrValue == ErrorConstant)
+					then error "Runtime Error: vector element hasn't been defined before."
+					else arrValue
+			else error ("Runtime Error: the index " ++ (show idx) ++ " is an avaliable index of range [0," ++ (show len) ++ ")")
 	valueOfArrayElement _ _ = ErrorConstant
 
 	getConstantType :: Constant -> DataType
@@ -49,10 +53,10 @@ module Expr where
 	getConstantType (FloatConstant _)	= FloatType
 	getConstantType (StringConstant _)	= StringType
 	getConstantType (CharConstant _)	= CharType
-	getConstantType _					= ErrorType
+	getConstantType _					= error ("Debug Error: Why you call this?(getConstantType)")
 
 	getExprType :: Expr -> DataType
-	getExprType EmptyExpr						= ErrorType
+	getExprType EmptyExpr						= error ("Debug Error: Why you call this?(getExprType)")
 	getExprType (NewConstant (BoolConstant _))	= BoolType
 	getExprType (NewConstant (FloatConstant _))	= FloatType
 	getExprType (NewConstant ErrorConstant)		= ErrorType
@@ -76,47 +80,49 @@ module Expr where
 
 	plusConstant :: Constant -> Constant -> Constant
 	plusConstant (FloatConstant v1) (FloatConstant v2) = FloatConstant (v1+v2);
-	plusConstant _ _ = ErrorConstant;
+	plusConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " + " ++ (show v2) ++ " is not an available expression");
 
 	minusConstant :: Constant -> Constant -> Constant
 	minusConstant (FloatConstant v1) (FloatConstant v2) = FloatConstant (v1-v2);
-	minusConstant _ _ = ErrorConstant;
+	minusConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " + " ++ (show v2) ++ " is not an available expression")
 
 	multiplicationConstant :: Constant -> Constant -> Constant
 	multiplicationConstant (FloatConstant v1) (FloatConstant v2) = FloatConstant (v1*v2);
-	multiplicationConstant _ _ = ErrorConstant;
+	multiplicationConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " * " ++ (show v2) ++ " is not an available expression");
 
 	divisionConstant :: Constant -> Constant -> Constant
 	divisionConstant (FloatConstant v1) (FloatConstant v2) = FloatConstant (v1/v2);
-	divisionConstant _ _ = ErrorConstant;
+	divisionConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " / " ++ (show v2) ++ " is not an available expression");
 
 	equalConstant :: Constant -> Constant -> Constant
 	equalConstant (FloatConstant v1) (FloatConstant v2) = BoolConstant (v1==v2);
-	equalConstant _ _ = ErrorConstant;
+	equalConstant (BoolConstant v1) (BoolConstant v2) = BoolConstant (v1==v2);
+	equalConstant (CharConstant v1) (CharConstant v2) = BoolConstant (v1==v2);
+	equalConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " = " ++ (show v2) ++ " is not an available expression");
 
 	lessConstant :: Constant -> Constant -> Constant
 	lessConstant (FloatConstant v1) (FloatConstant v2) = BoolConstant (v1<v2);
-	lessConstant _ _ = ErrorConstant;
+	lessConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " < " ++ (show v2) ++ " is not an available expression");
 
 	leqConstant :: Constant -> Constant -> Constant
 	leqConstant (FloatConstant v1) (FloatConstant v2) = BoolConstant (v1<=v2);
-	leqConstant _ _ = ErrorConstant;
+	leqConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " <= " ++ (show v2) ++ " is not an available expression");
 
 	greatConstant :: Constant -> Constant -> Constant
 	greatConstant (FloatConstant v1) (FloatConstant v2) = BoolConstant (v1>v2);
-	greatConstant _ _ = ErrorConstant;
+	greatConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " > " ++ (show v2) ++ " is not an available expression");
 
 	geqConstant :: Constant -> Constant -> Constant
 	geqConstant (FloatConstant v1) (FloatConstant v2) = BoolConstant (v1>=v2);
-	geqConstant _ _ = ErrorConstant;
+	geqConstant v1 v2 = error ("Runtime error: " ++ (show v1) ++ " >= " ++ (show v2) ++ " is not an available expression")
 
 	consConstant :: Constant -> Constant -> Constant
 	consConstant x y = PairConstant (x,y)
 
 	carConstant :: Constant -> Constant
 	carConstant (PairConstant (x,y)) = x
-	carConstant _ = ErrorConstant;
+	carConstant v = error ("Runtime error: car operator is not available on " ++ (show v));
 
 	cdrConstant :: Constant -> Constant
 	cdrConstant (PairConstant (x,y)) = y
-	cdrConstant _ = ErrorConstant
+	cdrConstant v = error ("Runtime error: cdr operator is not available on " ++ (show v));
