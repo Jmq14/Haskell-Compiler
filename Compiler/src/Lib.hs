@@ -55,7 +55,7 @@ module Lib where
 --        r <- createProcess (proc "pyinstaller" []) { cmdspec = (Map.findWithDefault "" "out" m) []}
 --        runProcess "pyinstaller" [(Map.findWithDefault "" "out" m)++".py", "-o", (Map.findWithDefault "" "out" m)] (Just "./") Nothing Nothing Nothing Nothing
 --        run <- system ("pyinstaller "++Map.findWithDefault "" "out" m++".py -o "++Map.findWithDefault "" "out" m)
---        (_,mOut,mErr,procHandle) <- createProcess $ (proc "pyinstaller" [(Map.findWithDefault "" "out" m)++".py"]) {std_out = CreatePipe, std_err = CreatePipe }
+        (_,mOut,mErr,procHandle) <- createProcess $ (proc "pyinstaller" [(Map.findWithDefault "" "out" m)++".py"]) {std_out = CreatePipe, std_err = CreatePipe }
         hClose output
 
     compiler :: IO ()
