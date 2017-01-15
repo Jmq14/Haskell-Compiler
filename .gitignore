@@ -1,11 +1,11 @@
 *.swp
 *~
 
-cabal-test/
+Runner/cabal-test/
 
-.cabal-sandbox/
-dist/
-bin/
+Runner/.cabal-sandbox/
+Runner/dist/
+Runner/bin/
 
-.stack-work/
+Runner/.stack-work/
 
