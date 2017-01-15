@@ -71,8 +71,8 @@ While语言 & $\bigstar \bigstar \bigstar$ & 是\\
     \begin{enumerate}
         \item 在终端进入Runner目录，运行$tools/setup.sh$或$python\ tools/setup.py$安装项目。
         \item 运行$tools/compile.sh$或$python\ tools/compile.py$进行编译。
-        \item 运行$tools/run.sh$或$python\ tools/run.py$运行项目。以使用$tools/run.sh$为例：
-        
+        \item 运行$tools/run.sh$或$python\ tools/run.py$运行项目。以使用$tools/run.sph$为例：
+
         \begin{itemize}
             \item 运行$tools/run.sh\ -i\ <file>$，在终端输出file中程序运行结果。
             \item 运行$tools/run.sh\ -i\ <file1>\ -o\ <file2>$，将file1中程序运行结果输出到file2中。
@@ -134,8 +134,19 @@ While语言 & $\bigstar \bigstar \bigstar$ & 是\\
     \end{enumerate}
 
     以上为所支持的语法特性。
-    
+
 \section{解释器}
+解释器对输入的program首先进行参数解析，然后分读文件模式和repl模式。
+
+在读文件模式下，要求读入一个program，然后通过一系列的parser进行语法分析，生成语法树，然后由Run读取语法树，输出运行结果。
+
+在repl模式下，要求在:i后面读入一个expression，解析过程同上。
+
+用户通过解释器的-t参数或者repl模式下的:t命令可以查看相应的语法树。
+
+在性能优化方面，在运行过程中对逻辑判断进行了短路处理。
+
+在错误处理方面，分为编译时错误和运行时错误。
 \section{编译器}
 由于所给的文法是弱类型的文法，比如函数、参数等都没有类型说明，翻译到强类型的比如LLVM IR这样的中间语言会引入一些新的问题，虽然理论上可以通过cast强制类型转换来做到这一点，不过这意味着所有变量都会先声明64位地址，造成内存空间浪费。参考一些已知的编译器如bumba将python编译为ir，但他们在语法上要求在函数的装饰器里声明类型。所以我们先选择用python3作为目标语言。
 
@@ -172,12 +183,35 @@ While语言 & $\bigstar \bigstar \bigstar$ & 是\\
     在执行正确性测试的时候，会依次针对每一个代码做正确性检查。
 \subsubsection{针对属性的测试}
     利用 Haskell 的 QuickCheck 功能，正确性检查的第二部分会针对以下三个属性进行测试：
-    
+
     \begin{enumerate}
         \item prop$\_$add：常量的加法运算：每次测试会生成两个数，根据这两个数生成对应的加法表达式，计算其结果应该与直接使用 Haskell 的加法运算结果一致，每次测试 $100$ 组数据。
         \item prop$\_$qsort：每次随机生成一个列表，同时生成关于这个列表进行快速排序的代码，并利用解释器执行得到排序之后的结果。该结果应该与直接使用 List.sort 的结果一致，每次测试 $100$ 组数据。
         \item prop$\_$queen：每次随机生成一个整数 $n$，同时生成一段求 $n$ 皇后方案数的代码，并利用解释器得到其结果。该结果应该与 $n$ 皇后的实际方案数一致，每次测试 $20$ 组数据。
     \end{enumerate}
+\subsection{测试结果}
+\subsubsection{正确性}
+以上所有测试通过解释器和编译器的测试结果均与answer文件相吻合（但在浮点数精度上两者的运行结果有差异）。
+\subsubsection{性能优化}
+\begin{itemize}
+  \item 短路
+  \item Constant Propagation：
+
+  我们用编译器生成表达式$(print\ (-\ (+\ 3\ 5)\ 4))$的可执行文件，并测试运行时间来对这一性能进行比较，以下测试时间由Linux的time命令给出。
+  \begin{table}[H]
+  \begin{center}
+  \begin{tabular}{c|c|c}
+     & 优化前 & 优化后\\
+    \hline
+    real & 55ms & 32ms\\
+    \hline
+    user & 14ms & 11ms\\
+    \hline
+    sys & 16ms & 10ms
+  \end{tabular}
+  \end{center}
+  \end{table}
+\end{itemize}
 \section{实验体会}
 本次实验中，我们将课上学到的知识付诸实践，完成了抽象语法树的设计、代码解析、实现简单程序的解释执行和编译执行等功能。在这个过程中，我们再次复习理解了Haskell，对这门函数式编程语言有了更深刻的理解。
 
