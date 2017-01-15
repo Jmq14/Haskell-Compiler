@@ -4,8 +4,6 @@ import qualified Lib as Lib
 
 import qualified Control.Exception as Exception
 
-import qualified Test.QuickCheck
-
 catchAny :: IO a -> (Exception.SomeException -> IO a) -> IO a
 catchAny = Exception.catch
 
@@ -36,6 +34,5 @@ main = do
 	testList checklist
 	putStrLn ""
 	putStrLn "Property test begin:"
-	p
 	putStrLn "Property test done.\n"
 	putStrLn "Test done"
