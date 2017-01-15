@@ -9,7 +9,7 @@
 \begin{document}
 \begin{spacing}{1.3}
 \title{\textbf{《函数式语言程序设计》课程作业文档}}
-\author{蒋梦青\ 钟皓曦\ 叶佩}
+\author{蒋梦青\ 2014013443\\ 钟皓曦\ 2014011384\\ 叶\ \ ~佩\ 2014013456\\}
 \date{}
 \maketitle
 \tableofcontents
@@ -20,10 +20,82 @@
 \section{语言特性}
 逻辑表达式，浮点算术表达式，字符串与列表，While语言，数组，一阶函数，高阶函数
 \part{运行说明}
+\part{支持的语法特性}
+    解释器、编译器所接受的语言为包含了 文档3.1、3.2 中所有特性的语言。
+\section{函数 Function}
+    一段完整的程序定义必须是由 Function List组成，其中 Function List是包含若干个 Function 的列表。 对于每一个 Function，我们规定如下文法：
+    
+    \begin{center}Function ::= (define (functionName var1 var2 $\cdots$) statement)\end{center}
+    
+    其中 functionName 为该 Function 的函数名字，后面的 var1,var2,$\cdots$ 为该函数的每个参数的名字， statement 为函数语句体。对于所有 Function，有如下规定：
+    
+    \begin{enumerate}
+        \item Function 的函数名字区分大小写。
+        \item 两个 Function 如果名字相同但是参数个数不同，则认为是不同的函数。
+        \item 两个 Function 如果名字相同且参数个数相同，则认为第二个函数是第一个函数的重定义，在调用该函数时均使用第二个函数。
+        \item 任何一个 Function 必须有返回值。
+    \end{enumerate}
+
+\section{语句体 statement}
+    对于语句体 statement，除了在 文档3.2 中定义的 set!、skip、if、while、begin、make-vector、vector-set!、return 以外，我们加入了一条新的语句 print。 print 语句的定义为
+    
+    \begin{center}statement ::= (print expression)\end{center}
+    
+    其作用为输出表达式 expression 求值之后的结果。 同时，我们对 statement 语句体做出以下说明：
+    
+    \begin{enumerate}
+        \item 所有语句体按照顺序从函数入口到函数出口一条一条执行。
+        \item 当在 Function 中使用了 return 语句之后，该 Function 之后所有的语句体都会被跳过，将会直接返回 return 语句所返回的值。
+        \item 在任何一个 Function 的语句体中，所有由 Function 的参数所定义的变量均为局部变量，在语句体中修改这些变量的值并不会影响到这些变量在外部的值。而除开这些变量以外的所有变量都是全局变量。
+    \end{enumerate}
+
+\section{表达式 expression}
+    对于表达式 expression， 其格式与 文档3.1、3.2 中所定义的 expression 的语法要求一致，同时我们对 expression 做出以下规定和说明：
+    
+    \begin{enumerate}
+        \item 对于一个表达式，其计算顺序从左至右顺序执行。
+        \item 对于 and 运算符和 or 运算符，我们实现了短路机制。如果运算符左侧表达式的值已经足够推断表达式的值，则不会再对右侧表达式进行计算。
+    \end{enumerate}
+
+\section{变量 variable}
+    对于声明的一个变量 variable，我们做出以下说明和规定：
+    
+    \begin{enumerate}
+        \item 变量名必须以字母开头，由数字、字母和下划线组成。
+        \item 不允许调用未声明的变量。
+        \item 声明数组变量之后，数组内部未被赋值的部分的值均为 undefined。
+        \item 变量的数据类型为弱类型。
+    \end{enumerate}
+
+    以上为所支持的语法特性。
 \part{文法解析与语法树结构}
 \part{解释器与REPL}
 \part{编译器}
 \part{测试及测试结果}
+\section{关于正确性的测试}
+\subsection{针对预定代码的测试}
+    正确性第一部分的测试为利用 test 模块对写好的代码进行运行，比对运行的输出和程序应有的预期结果。在 test$\backslash$test$\_$file 中，提供了所有被编译解释语言的代码：
+    
+    \begin{itemize}
+        \item arr：为对数组使用的测试。
+        \item fib,fib$\_$arr：为斐波那契数列的的两个测试用例。
+        \item func1,fcun2：为对函数使用的测试。
+        \item middle：二维加权重心的测试用例。
+        \item qsort,qsort$\_$big：为两个快速排序的测试用例。
+        \item queen,queen$\_$fast：为两个八皇后的测试用例，其中queen$\_$fast为加速过后的版本。
+        \item test1,test2,test3：为三个基本的语法测试用例。
+    \end{itemize}
+    
+    在每个文件夹下有三个文件： code、answer、output，分别代表：
+    
+    \begin{itemize}
+        \item code： 被检查的源代码。
+        \item answer：代码应有的输出。
+        \item output：代码实际运行的输出。
+    \end{itemize}
+    
+    在执行正确性测试的时候，
+\subsection{针对属性的测试}
 \part{实验体会}
 \end{spacing}
 \end{document}
