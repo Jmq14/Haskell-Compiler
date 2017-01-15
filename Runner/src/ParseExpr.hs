@@ -142,7 +142,7 @@ module ParseExpr where
 								then error ("Compile error: there is a missing \")\"")
 								else (expr,tail newAhead)
 		| otherwise		=
-			if ((head x) >= '0' && (head x) <= '9')
+			if (((head x) >= '0' && (head x) <= '9') || (head x == '-'))
 				then parseFloat (x:xs)
 				else
 					if (head x == '\'')

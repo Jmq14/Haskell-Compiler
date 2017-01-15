@@ -1,6 +1,6 @@
 # Haskell-Compiler
 
-First install stack.(http://www.baidu.com)
+First install stack.
 
 Second, run
 
@@ -38,4 +38,22 @@ or
 
 ```sh
 python tools/run.py
+```
+
+To test, run
+
+```
+tools/test.sh
+```
+
+or
+
+```sh
+python tools/test.py
+```
+
+(If test is not available, run 
+
+```sh
+stack install QuickCheck
 ```

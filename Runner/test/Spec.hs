@@ -1,8 +1,10 @@
-import qualified Run as Run
-import qualified Parser as Parser
 import qualified Lib as Lib
 
+import qualified Proposition as Proposition
+
 import qualified Control.Exception as Exception
+
+import qualified Test.QuickCheck as QuickCheck
 
 catchAny :: IO a -> (Exception.SomeException -> IO a) -> IO a
 catchAny = Exception.catch
@@ -26,6 +28,14 @@ testList (x:xs) =  do
 	testCode x
 	testList xs
 
+propertyTest = do
+	putStr "prop_add : " 
+	QuickCheck.quickCheck Proposition.prop_add
+	putStr "prop_qsort : " 
+	QuickCheck.quickCheck Proposition.prop_qsort
+	putStr "prop_queen : " 
+	QuickCheck.quickCheckWith QuickCheck.stdArgs { QuickCheck.maxSuccess = 20 } Proposition.prop_queen
+
 main :: IO ()
 main = do
 	putStrLn "\n"
@@ -34,5 +44,6 @@ main = do
 	testList checklist
 	putStrLn ""
 	putStrLn "Property test begin:"
+	propertyTest
 	putStrLn "Property test done.\n"
 	putStrLn "Test done"
