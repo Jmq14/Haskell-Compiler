@@ -52,16 +52,13 @@ module Lib where
         d <- hDuplicateTo output stdout
         let functionList = Parser.myParse input in do
             putStrLn (Translator.translate2python functionList)
---        r <- createProcess (proc "pyinstaller" []) { cmdspec = (Map.findWithDefault "" "out" m) []}
---        runProcess "pyinstaller" [(Map.findWithDefault "" "out" m)++".py", "-o", (Map.findWithDefault "" "out" m)] (Just "./") Nothing Nothing Nothing Nothing
---        run <- system ("pyinstaller "++Map.findWithDefault "" "out" m++".py -o "++Map.findWithDefault "" "out" m)
---        (_,mOut,mErr,procHandle) <- createProcess $ (proc "pyinstaller" [(Map.findWithDefault "" "out" m)++".py"]) {std_out = CreatePipe, std_err = CreatePipe }
+        (_,mOut,mErr,procHandle) <- createProcess $ (proc "pyinstaller" [(Map.findWithDefault "" "out" m)++".py"]) {std_out = CreatePipe, std_err = CreatePipe }
         hClose output
 
     compiler :: IO ()
     compiler = do
-        start <- Time.getCurrentTime
+--        start <- Time.getCurrentTime
         a <- getArgs
         handleFileIO(extractArgs a)
-        end <- Time.getCurrentTime
-        print (Time.diffUTCTime end start)
+--        end <- Time.getCurrentTime
+--        print (Time.diffUTCTime end start)

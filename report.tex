@@ -1,4 +1,4 @@
-\documentclass{report}
+\documentclass{article}
 \usepackage{ctexcap}
 \usepackage{setspace}
 \usepackage{graphicx}
@@ -14,21 +14,87 @@
 \maketitle
 \tableofcontents
 \newpage
-\part{实验简介}
-\section{功能实现}
-独立主程序，REPL，解释器，编译器，文法解析，Pretty-printer，错误处理，代码测试，代码风格，性能优化
-\section{语言特性}
-逻辑表达式，浮点算术表达式，字符串与列表，While语言，数组，一阶函数，高阶函数
-\part{运行说明}
-\part{支持的语法特性}
+\section{实验简介}
+本实验中，我们使用Haskell语言完成了抽象语法树的设计、代码解析、实现简单程序的解释执行和编译执行。具体实现情况如下。
+\subsection{功能实现}
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{c|c|c}
+功能 & 难度 & 是否实现\\
+\hline
+独立主程序 & $\bigstar$ & 是\\
+\hline
+REPL & $\bigstar$ & 是\\
+\hline
+解释器 & $\bigstar$ & 是\\
+\hline
+编译器 & $\bigstar \bigstar \bigstar \bigstar$ & 是\\
+\hline
+文法解析 & $\bigstar \bigstar$ & 是\\
+\hline
+Pretty-printer & $\bigstar$ & 是\\
+\hline
+错误处理 & $\bigstar$ & 是\\
+\hline
+代码测试 & $\bigstar \bigstar$ & 是\\
+\hline
+代码风格 & $\bigstar \bigstar \bigstar$ & 是\\
+\hline
+性能优化 & $\bigstar \bigstar \bigstar$ & 是
+\end{tabular}
+\end{center}
+\end{table}
+\subsection{语言特性}
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{c|c|c}
+功能 & 难度 & 是否实现\\
+\hline
+逻辑表达式 & $\bigstar$ & 是\\
+\hline
+浮点算术表达式 & $\bigstar$ & 是\\
+\hline
+字符串与列表 & $\bigstar \bigstar$ & 是\\
+\hline
+While语言 & $\bigstar \bigstar \bigstar$ & 是\\
+\hline
+数组 & $\bigstar \bigstar \bigstar$ & 是\\
+\hline
+一阶函数 & $\bigstar \bigstar \bigstar$ & 是
+\end{tabular}
+\end{center}
+\end{table}
+\section{运行说明}
+前期准备：下载安装stack以及python3、pyinstaller。
+
+\subsection{解释器}
+    \begin{enumerate}
+        \item 在终端进入Runner目录，运行$tools/setup.sh$或$python\ tools/setup.py$安装项目。
+        \item 运行$tools/compile.sh$或$python\ tools/compile.py$进行编译。
+        \item 运行$tools/run.sh$或$python\ tools/run.py$运行项目。以使用$tools/run.sh$为例：
+        
+        \begin{itemize}
+            \item 运行$tools/run.sh\ -i\ <file>$，在终端输出file中程序运行结果。
+            \item 运行$tools/run.sh\ -i\ <file1>\ -o\ <file2>$，将file1中程序运行结果输出到file2中。
+            \item 运行$tools/run.sh\ -t\ <file>$，在终端输出file中程序的抽象语法树。
+            \item 运行$tools/run.sh\ -t\ <file1>\ -o\ <file2>$，将file1中程序的抽象语法树输出到file2中。
+        \end{itemize}
+
+        \item 运行$tools/run.sh\ -repl$进入repl模式。在该模式中，输入$:i\ <program>$，解释器给出:i后的程序的执行结果并输出到stdout；输入$:t$，输出上一段程序的抽象语法树。如果没有上一段程序，输出Nil。
+        \item 运行$tools/test.sh$执行代码测试。
+    \end{enumerate}
+\subsection{编译器}
+在终端进入Compiler目录，运行$tools/compile\_and\_run.sh\ <file1>\ -o\ <file2>$或$python\ tools/compile\_and\_run.py\ <file1>\ -o\ <file2>$编译file1中的程序，将会生成对应的python文件（保存在./dist/file2.py中）和可执行文件（保存在./dist/file2中）。
+
+\section{支持的语法特性}
     解释器、编译器所接受的语言为包含了 文档3.1、3.2 中所有特性的语言。
-\section{函数 Function}
+\subsection{函数 Function}
     一段完整的程序定义必须是由 Function List组成，其中 Function List是包含若干个 Function 的列表。 对于每一个 Function，我们规定如下文法：
-    
+
     \begin{center}Function ::= (define (functionName var1 var2 $\cdots$) statement)\end{center}
-    
+
     其中 functionName 为该 Function 的函数名字，后面的 var1,var2,$\cdots$ 为该函数的每个参数的名字， statement 为函数语句体。对于所有 Function，有如下规定：
-    
+
     \begin{enumerate}
         \item Function 的函数名字区分大小写。
         \item 两个 Function 如果名字相同但是参数个数不同，则认为是不同的函数。
@@ -36,30 +102,30 @@
         \item 任何一个 Function 必须有返回值。
     \end{enumerate}
 
-\section{语句体 statement}
+\subsection{语句体 statement}
     对于语句体 statement，除了在 文档3.2 中定义的 set!、skip、if、while、begin、make-vector、vector-set!、return 以外，我们加入了一条新的语句 print。 print 语句的定义为
-    
+
     \begin{center}statement ::= (print expression)\end{center}
-    
+
     其作用为输出表达式 expression 求值之后的结果。 同时，我们对 statement 语句体做出以下说明：
-    
+
     \begin{enumerate}
         \item 所有语句体按照顺序从函数入口到函数出口一条一条执行。
         \item 当在 Function 中使用了 return 语句之后，该 Function 之后所有的语句体都会被跳过，将会直接返回 return 语句所返回的值。
         \item 在任何一个 Function 的语句体中，所有由 Function 的参数所定义的变量均为局部变量，在语句体中修改这些变量的值并不会影响到这些变量在外部的值。而除开这些变量以外的所有变量都是全局变量。
     \end{enumerate}
 
-\section{表达式 expression}
+\subsection{表达式 expression}
     对于表达式 expression， 其格式与 文档3.1、3.2 中所定义的 expression 的语法要求一致，同时我们对 expression 做出以下规定和说明：
-    
+
     \begin{enumerate}
         \item 对于一个表达式，其计算顺序从左至右顺序执行。
         \item 对于 and 运算符和 or 运算符，我们实现了短路机制。如果运算符左侧表达式的值已经足够推断表达式的值，则不会再对右侧表达式进行计算。
     \end{enumerate}
 
-\section{变量 variable}
+\subsection{变量 variable}
     对于声明的一个变量 variable，我们做出以下说明和规定：
-    
+
     \begin{enumerate}
         \item 变量名必须以字母开头，由数字、字母和下划线组成。
         \item 不允许调用未声明的变量。
@@ -68,14 +134,23 @@
     \end{enumerate}
 
     以上为所支持的语法特性。
-\part{文法解析与语法树结构}
-\part{解释器与REPL}
-\part{编译器}
-\part{测试及测试结果}
-\section{关于正确性的测试}
-\subsection{针对预定代码的测试}
-    正确性第一部分的测试为利用 test 模块对写好的代码进行运行，比对运行的输出和程序应有的预期结果。在 test$\backslash$test$\_$file 中，提供了所有被编译解释语言的代码：
     
+\section{解释器}
+\section{编译器}
+由于所给的文法是弱类型的文法，比如函数、参数等都没有类型说明，翻译到强类型的比如LLVM IR这样的中间语言会引入一些新的问题，虽然理论上可以通过cast强制类型转换来做到这一点，不过这意味着所有变量都会先声明64位地址，造成内存空间浪费。参考一些已知的编译器如bumba将python编译为ir，但他们在语法上要求在函数的装饰器里声明类型。所以我们先选择用python3作为目标语言。
+
+在翻译的过程中，我们遍历了两遍语法树：
+
+第一遍找出所有的变量声明结点，并将他们保存在globalVariable列表中（这样做的原因是我们认为文法中声明的所有变量都是全局变量，只有传递的参数是局部的，所以在python中需要在外部声明这些全局变量，并在函数中标注$global\ <variable name>$）。
+
+第二遍开始自上而下的翻译，主要是将文法中的前缀表达式变为中缀表达式。同时在表达式求值的过程中，我们实现了constant propagation，即操作符两边是常数时直接给出运算结果。
+
+最后，我们利用pyinstaller这个外部工具生成可执行文件，这一步通过在Translator.hs中通过System.Process直接调用自动执行。
+\section{测试及测试结果}
+\subsection{关于正确性的测试}
+\subsubsection{针对预定代码的测试}
+    正确性第一部分的测试为利用 test 模块对写好的代码进行运行，比对运行的输出和程序应有的预期结果。在 test$\backslash$test$\_$file 中，提供了所有被编译解释语言的代码：
+
     \begin{itemize}
         \item arr：为对数组使用的测试。
         \item fib,fib$\_$arr：为斐波那契数列的的两个测试用例。
@@ -85,17 +160,27 @@
         \item queen,queen$\_$fast：为两个八皇后的测试用例，其中queen$\_$fast为加速过后的版本。
         \item test1,test2,test3：为三个基本的语法测试用例。
     \end{itemize}
-    
+
     在每个文件夹下有三个文件： code、answer、output，分别代表：
-    
+
     \begin{itemize}
         \item code： 被检查的源代码。
         \item answer：代码应有的输出。
         \item output：代码实际运行的输出。
     \end{itemize}
+
+    在执行正确性测试的时候，会依次针对每一个代码做正确性检查。
+\subsubsection{针对属性的测试}
+    利用 Haskell 的 QuickCheck 功能，正确性检查的第二部分会针对以下三个属性进行测试：
     
-    在执行正确性测试的时候，
-\subsection{针对属性的测试}
-\part{实验体会}
+    \begin{enumerate}
+        \item prop$\_$add：常量的加法运算：每次测试会生成两个数，根据这两个数生成对应的加法表达式，计算其结果应该与直接使用 Haskell 的加法运算结果一致，每次测试 $100$ 组数据。
+        \item prop$\_$qsort：每次随机生成一个列表，同时生成关于这个列表进行快速排序的代码，并利用解释器执行得到排序之后的结果。该结果应该与直接使用 List.sort 的结果一致，每次测试 $100$ 组数据。
+        \item prop$\_$queen：每次随机生成一个整数 $n$，同时生成一段求 $n$ 皇后方案数的代码，并利用解释器得到其结果。该结果应该与 $n$ 皇后的实际方案数一致，每次测试 $20$ 组数据。
+    \end{enumerate}
+\section{实验体会}
+本次实验中，我们将课上学到的知识付诸实践，完成了抽象语法树的设计、代码解析、实现简单程序的解释执行和编译执行等功能。在这个过程中，我们再次复习理解了Haskell，对这门函数式编程语言有了更深刻的理解。
+
+巧合的是，在本学期的另一门课程计算机与网络体系结构（2）中，我们也实现了一个简单的编译器。通过这两个目标相似的实验的对比，我们更体会到了Haskell相较于其他命令式语言的独特之处。
 \end{spacing}
 \end{document}
