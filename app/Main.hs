@@ -26,8 +26,7 @@ module Main where
 	import qualified Data.List.Split as Split
 	import qualified Data.Ratio as Ratio
 
-	getASTTree s = Parser.myParse s;
-	
+	-- 分析调用参数
 	analyzeArgs (x:[]) = 
 		if (x == "-repl")
 			then Map.insert "-repl" "233" Map.empty
@@ -40,9 +39,11 @@ module Main where
 		| x == "-repl" = Map.insert "-repl" "233" (analyzeArgs (y:xs))
 		| otherwise = analyzeArgs (y:xs)
 
+	-- 捕捉异常信息
 	catchAny :: IO a -> (Exception.SomeException -> IO a) -> IO a
 	catchAny = Exception.catch
 
+	-- 非repl的工作函数
 	normalMind input operator output = do
 		let functionList = Parser.myParse input in do
 			if (output /= "")
@@ -61,11 +62,13 @@ module Main where
 					PrettyPrinter.prettyPrinter $ map (\(x,y)->y) $ Map.toAscList functionList
 			putStr ""
 	
+	-- 捕捉非repl模式的工作异常并输出
 	normalWork input operator output = do
 		catchAny (normalMind input operator output) (\err -> do 
 			putStrLn (head (Split.splitOn "\n" (show err)))
 			putStr "")
 
+	-- 根据系统参数选择工作模式
 	mainWork m =  do
 		if (Map.member "-repl" m)
 			then Repl.mainWork
@@ -81,10 +84,8 @@ module Main where
 								normalWork input "ast" (Map.findWithDefault "" "-o" m)
 							else putStrLn "Parameter not enough"
 
+	-- 主函数
 	main :: IO()
 	main = do
---		line <- getLine
 		a <- getArgs
-		-- print a
 		mainWork (analyzeArgs a)
---		print (valueOfExpr (getASTTree line))
