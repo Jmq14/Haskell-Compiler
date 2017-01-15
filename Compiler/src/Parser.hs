@@ -13,7 +13,7 @@ module Parser where
 
 	import qualified Debug.Trace as Trace
 
-
+	-- 剔除空字符串
 	filt :: [String] -> [String]
 	filt [] = []
 	filt (x:xs) =
@@ -21,10 +21,12 @@ module Parser where
 			then filt xs
 			else (x:(filt xs))
 
+	-- 替换制表符为空格
 	repl :: Char -> Char
 	repl '\t' = ' '
 	repl c = c
 
+	-- 括号提取
 	convertBracket :: String -> String
 	convertBracket [] = []
 	convertBracket (x:xs)
@@ -58,20 +60,18 @@ module Parser where
 		handle (r:[]) = preSplitChar r
 		handle (r:rs) = preSplitChar r ++ ["\"" ++ head rs ++ "\""] ++ handle (tail rs)
 
+	-- 预拆分给定程序
 	preSplit :: String -> [String]
 	preSplit = filt . preSplitString . preSplitLine
 
-	--parseProgram :: [String] -> (Tree.Node,[String])
-	--parseProgram s = ParseStatement.parseStatement s
+	-- 解析程序
 	parseProgram :: [String] -> (Map.Map (Variable.Variable,Integer) Function.Function)
 	parseProgram s = ParseFunction.parseFunctionList s
 
+	-- 解析给定的字符串列表
 	parseOn :: [String] -> (Map.Map (Variable.Variable,Integer) Function.Function)
 	parseOn s = parseProgram s
---		let (node,ahead) = parseProgram s in
---			if (ahead /= []) 
---				then Tree.ErrorNode
---				else node
 	
+	-- 解析的入口函数
 	myParse :: String -> (Map.Map (Variable.Variable,Integer) Function.Function)
-	myParse s = Trace.trace (show (preSplit s)) (parseOn (preSplit s) )
+	myParse s = parseOn (preSplit s)

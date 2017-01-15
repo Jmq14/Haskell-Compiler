@@ -7,11 +7,15 @@ module Translator where
 	import qualified Debug.Trace as Trace;
 
 --  translate function (entrance)
-	genFunctionList :: (Int, Map.Map (Variable.Variable,Integer) Function.Function) -> String
-	genFunctionList (indent, funcList) = 
+	translate2python :: Map.Map (Variable.Variable,Integer) Function.Function -> String
+	translate2python funcList = 
+		let globalVariables = getGlobal funcList in
+		genFunctionList (0, funcList, globalVariables)
+
+	genFunctionList :: (Int, Map.Map (Variable.Variable,Integer) Function.Function, [Variable.Variable]) -> String
+	genFunctionList (indent, funcList, globalVariables) = 
 		let list = Map.toList funcList in 
-		concat [if show function == "main" then genNode (0, node) ++ "\n"
-			else (replicate indent ' ') ++ "def " ++ show function ++ "(" ++ genParam varList ++ "):\n" ++ genNode ((indent+4), node) ++ "\n" | (_, Function.NewFunction function numVar varList node) <- list]
+		(concat [(replicate indent ' ') ++ "def " ++ show function ++ "(" ++ genParam varList ++ "):\n" ++ refGlobal (indent+4) globalVariables varList ++ genNode ((indent+4), node) ++ "\n" | (_, Function.NewFunction function numVar varList node) <- list]) ++ declGlobal globalVariables ++ "\nmain()"
 
 	genParam :: [Variable.Variable] -> String
 	genParam [] = ""
@@ -22,6 +26,33 @@ module Translator where
 	genArguments [] = ""
 	genArguments (x:[]) = genExpr x 
 	genArguments (x:xs) = genExpr x ++ ", " ++ genArguments xs
+
+	getGlobal :: Map.Map (Variable.Variable,Integer) Function.Function -> [Variable.Variable]
+	getGlobal funcList = 
+		let list = Map.toList funcList in 
+		concat [findSetStmt node []| (_, Function.NewFunction function numVar varList node) <- list]
+
+	declGlobal :: [Variable.Variable] -> String
+	declGlobal globalVariables = 
+		concat [show v ++ " = None\n"|v <- globalVariables]
+
+	refGlobal :: Int -> [Variable.Variable] -> [Variable.Variable] -> String
+	refGlobal indent globalVariables varList = 
+		concat [if v `elem` varList then "" else (replicate indent ' ' ++ "global " ++ show v ++ "\n") | v <- globalVariables]
+
+	findSetStmt :: Tree.Node -> [Variable.Variable] -> [Variable.Variable]
+	findSetStmt (Tree.SetVariableNode v _) globalVariables
+		|show v == "void" = []
+		|v `elem` globalVariables  = []
+		|otherwise = [v]
+	findSetStmt (Tree.MakeVectorNode v _) globalVariables
+		|show v == "void" = []
+		|v `elem` globalVariables  = []
+		|otherwise = [v]
+	findSetStmt (Tree.StatementListNode stmt next) globalVariables = 
+		let v = findSetStmt stmt globalVariables in
+		v ++ findSetStmt next (globalVariables++v)
+	findSetStmt _ globalVariables = []
 
 -------------
 --Generate code of Tree Nodes
@@ -62,7 +93,7 @@ module Translator where
 		replicate indent ' ' ++ show var ++ "[" ++ genExpr idx ++ "] = " ++ genExpr value  
 
 --Print
-	genNode (indent, Tree.PrintNode expr) = replicate indent ' ' ++ "print " ++ genExpr expr
+	genNode (indent, Tree.PrintNode expr) = replicate indent ' ' ++ "print(" ++ genExpr expr ++ ")"
 
 --Return 
 	genNode (0, Tree.ReturnNode _) = ""
@@ -92,6 +123,8 @@ module Translator where
 	genExpr (Expr.NewExpr Expr.GreatOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " > " ++ genExpr expr2 ++ ")"
 	genExpr (Expr.NewExpr Expr.GeqOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " >= " ++ genExpr expr2 ++ ")"
 	genExpr (Expr.NewExpr Expr.ConsOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ ", " ++ genExpr expr2 ++ ")"
+	genExpr (Expr.NewExpr Expr.CarOperator _ expr _) = "(" ++ genExpr expr ++ "[0])"
+	genExpr (Expr.NewExpr Expr.CdrOperator _ expr _) = "(" ++ genExpr expr ++ "[1])"
 --	genExpr (Expr.NewExpr Expr.CarOperator (Expr.PairType l r) _ _) = genExpr l 
 --	genExpr (Expr.NewExpr Expr.CdrOperator (Expr.PairType l r) _ _) = genExpr r
 
