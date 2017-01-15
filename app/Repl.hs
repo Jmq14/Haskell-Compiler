@@ -8,6 +8,7 @@ module Repl where
 	import qualified ParseStatement as ParseStatement
 	import qualified ParseFunction as ParseFunction
 	import qualified Parser as Parser
+	import qualified PrettyPrinter as PrettyPrinter
 
 	import qualified Run as Run
 
@@ -93,7 +94,7 @@ module Repl where
 					else
 						if ((head x) == ":t")
 							then do
-								putStrLn (show preWork)
+								PrettyPrinter.prettyPrinter [preWork]
 								replWork preWork variable functionList
 							else do
 								putStrLn "Invalid operation"
