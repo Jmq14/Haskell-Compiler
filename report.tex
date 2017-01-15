@@ -1,4 +1,4 @@
-\documentclass{report}
+\documentclass{article}
 \usepackage{ctexcap}
 \usepackage{setspace}
 \usepackage{graphicx}
@@ -14,16 +14,93 @@
 \maketitle
 \tableofcontents
 \newpage
-\part{实验简介}
-\section{功能实现}
-独立主程序，REPL，解释器，编译器，文法解析，Pretty-printer，错误处理，代码测试，代码风格，性能优化
-\section{语言特性}
-逻辑表达式，浮点算术表达式，字符串与列表，While语言，数组，一阶函数，高阶函数
-\part{运行说明}
-\part{文法解析与语法树结构}
-\part{解释器与REPL}
-\part{编译器}
-\part{测试及测试结果}
-\part{实验体会}
+\section{实验简介}
+本实验中，我们使用Haskell语言完成了抽象语法树的设计、代码解析、实现简单程序的解释执行和编译执行。具体实现情况如下。
+\subsection{功能实现}
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{c|c|c}
+功能 & 难度 & 是否实现\\
+\hline
+独立主程序 & $\bigstar$ & 是\\
+\hline
+REPL & $\bigstar$ & 是\\
+\hline
+解释器 & $\bigstar$ & 是\\
+\hline
+编译器 & $\bigstar \bigstar \bigstar \bigstar$ & 是\\
+\hline
+文法解析 & $\bigstar \bigstar$ & 是\\
+\hline
+Pretty-printer & $\bigstar$ & 是\\
+\hline
+错误处理 & $\bigstar$ & 是\\
+\hline
+代码测试 & $\bigstar \bigstar$ & 是\\
+\hline
+代码风格 & $\bigstar \bigstar \bigstar$ & 是\\
+\hline
+性能优化 & $\bigstar \bigstar \bigstar$ & 是
+\end{tabular}
+\end{center}
+\end{table}
+\subsection{语言特性}
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{c|c|c}
+功能 & 难度 & 是否实现\\
+\hline
+逻辑表达式 & $\bigstar$ & 是\\
+\hline
+浮点算术表达式 & $\bigstar$ & 是\\
+\hline
+字符串与列表 & $\bigstar \bigstar$ & 是\\
+\hline
+While语言 & $\bigstar \bigstar \bigstar$ & 是\\
+\hline
+数组 & $\bigstar \bigstar \bigstar$ & 是\\
+\hline
+一阶函数 & $\bigstar \bigstar \bigstar$ & 是
+\end{tabular}
+\end{center}
+\end{table}
+\section{运行说明}
+前期准备：下载安装stack以及python3、pyinstaller。
+
+\subsection{解释器}
+1、在终端进入Runner目录，运行$tools/setup.sh$或$python\ tools/setup.py$安装项目。
+
+2、运行$tools/compile.sh$或$python\ tools/compile.py$进行编译。
+
+3、运行$tools/run.sh$或$python\ tools/run.py$运行项目。以使用$tools/run.sh$为例：
+
+运行$tools/run.sh\ -i\ <file>$，在终端输出file中程序运行结果。
+
+运行$tools/run.sh\ -i\ <file1>\ -o\ <file2>$，将file1中程序运行结果输出到file2中。
+
+运行$tools/run.sh\ -t\ <file>$，在终端输出file中程序运行结果和该程序的抽象语法树。
+
+运行$tools/run.sh\ -t\ <file1>\ -o\ <file2>$，将file1中程序运行结果和该程序的抽象语法树输出到file2中。
+
+运行$tools/run.sh\ -repl$进入repl模式。在该模式中，输入$:i\ <program>$，解释器给出:i后的程序的执行结果并输出到stdout；输入$:t$，输出上一段程序的抽象语法树。如果没有上一段程序，输出Nil。
+
+\subsection{编译器}
+在终端进入Compiler目录，运行$tools/compile\_and\_run.sh\ <file1>\ -o\ <file2>$或$python\ tools/compile\_and\_run.py\ <file1>\ -o\ <file2>$编译file1中的程序，将会生成对应的python文件（保存在./dist/file2.py中）和可执行文件（保存在./dist/file2中）。
+\section{解释器}
+\section{编译器}
+由于所给的文法是弱类型的文法，比如函数、参数等都没有类型说明，翻译到强类型的比如LLVM IR这样的中间语言会引入一些新的问题，虽然理论上可以通过cast强制类型转换来做到这一点，不过这意味着所有变量都会先声明64位地址，造成内存空间浪费。参考一些已知的编译器如bumba将python编译为ir，但他们在语法上要求在函数的装饰器里声明类型。所以我们先选择用python3作为目标语言。
+
+在翻译的过程中，我们遍历了两遍语法树：
+
+第一遍找出所有的变量声明结点，并将他们保存在globalVariable列表中（这样做的原因是我们认为文法中声明的所有变量都是全局变量，只有传递的参数是局部的，所以在python中需要在外部声明这些全局变量，并在函数中标注$global\ <variable name>$）。
+
+第二遍开始自上而下的翻译，主要是将文法中的前缀表达式变为中缀表达式。同时在表达式求值的过程中，我们实现了constant propagation，即操作符两边是常数时直接给出运算结果。p
+
+最后，我们利用pyinstaller这个外部工具生成可执行文件，这一步通过在Translator.hs中通过System.Process直接调用自动执行。
+\section{测试及测试结果}
+\section{实验体会}
+本次实验中，我们将课上学到的知识付诸实践，完成了抽象语法树的设计、代码解析、实现简单程序的解释执行和编译执行等功能。在这个过程中，我们再次复习理解了Haskell，对这门函数式编程语言有了更深刻的理解。
+
+巧合的是，在本学期的另一门课程计算机与网络体系结构（2）中，我们也实现了一个简单的编译器。通过这两个目标相似的实验的对比，我们更体会到了Haskell相较于其他命令式语言的独特之处。
 \end{spacing}
 \end{document}
