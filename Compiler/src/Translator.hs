@@ -15,8 +15,7 @@ module Translator where
 	genFunctionList :: (Int, Map.Map (Variable.Variable,Integer) Function.Function, [Variable.Variable]) -> String
 	genFunctionList (indent, funcList, globalVariables) = 
 		let list = Map.toList funcList in 
-		concat [if show function == "main" then declGlobal globalVariables ++ genNode (0, node) ++ "\n"
-			else (replicate indent ' ') ++ "def " ++ show function ++ "(" ++ genParam varList ++ "):\n" ++ refGlobal (indent+4) globalVariables ++ genNode ((indent+4), node) ++ "\n" | (_, Function.NewFunction function numVar varList node) <- list]
+		(concat [(replicate indent ' ') ++ "def " ++ show function ++ "(" ++ genParam varList ++ "):\n" ++ refGlobal (indent+4) globalVariables varList ++ genNode ((indent+4), node) ++ "\n" | (_, Function.NewFunction function numVar varList node) <- list]) ++ declGlobal globalVariables ++ "\nmain()"
 
 	genParam :: [Variable.Variable] -> String
 	genParam [] = ""
@@ -37,12 +36,16 @@ module Translator where
 	declGlobal globalVariables = 
 		concat [show v ++ " = None\n"|v <- globalVariables]
 
-	refGlobal :: Int -> [Variable.Variable] -> String
-	refGlobal indent globalVariables = 
-		concat [replicate indent ' ' ++ "global " ++ show v ++ "\n" | v <- globalVariables]
+	refGlobal :: Int -> [Variable.Variable] -> [Variable.Variable] -> String
+	refGlobal indent globalVariables varList = 
+		concat [if v `elem` varList then "" else (replicate indent ' ' ++ "global " ++ show v ++ "\n") | v <- globalVariables]
 
 	findSetStmt :: Tree.Node -> [Variable.Variable] -> [Variable.Variable]
 	findSetStmt (Tree.SetVariableNode v _) globalVariables
+		|show v == "void" = []
+		|v `elem` globalVariables  = []
+		|otherwise = [v]
+	findSetStmt (Tree.MakeVectorNode v _) globalVariables
 		|show v == "void" = []
 		|v `elem` globalVariables  = []
 		|otherwise = [v]
@@ -90,7 +93,7 @@ module Translator where
 		replicate indent ' ' ++ show var ++ "[" ++ genExpr idx ++ "] = " ++ genExpr value  
 
 --Print
-	genNode (indent, Tree.PrintNode expr) = replicate indent ' ' ++ "print " ++ genExpr expr
+	genNode (indent, Tree.PrintNode expr) = replicate indent ' ' ++ "print(" ++ genExpr expr ++ ")"
 
 --Return 
 	genNode (0, Tree.ReturnNode _) = ""
