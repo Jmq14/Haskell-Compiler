@@ -2,6 +2,7 @@ module PrettyPrinter where
     import Data.Char
     import System.IO
 
+    --参数为asttree的数列表，输出美化后的asttree
     prettyPrinter [] = do putStr ""
     prettyPrinter (x:xs) = do
         let y = mySplit $ show x
@@ -9,6 +10,7 @@ module PrettyPrinter where
         putStrLn ""
         prettyPrinter xs
 
+    --n0为缩进个数，n1表示(x:xs)是否为参数，(x:xs)为要输出的内容
     astPrinter n0 n1 (x:xs) = do
         if x == "StatementListNode"
             then do
@@ -22,7 +24,7 @@ module PrettyPrinter where
         else if all == [x]
             then do
                 if '%' `elem` x
-                    then printLine (n0 + n1) (rationToFraction (words x))
+                    then printLine (n0 + n1) (rationalToFractional (words x))
                 else printLine (n0 + n1) x
         else do
             astPrinter (n0 + n1) 0 all
@@ -31,6 +33,7 @@ module PrettyPrinter where
         else putStr ""
         where all = mySplit x
 
+    --n为缩进个数，缩进完成后输出x
     printLine n x = do
         if n > 0
             then do
@@ -74,12 +77,13 @@ module PrettyPrinter where
             then mySplit1 n False (x ++ [y]) ys
         else mySplit1 n isArray (x ++ [y]) ys
 
-    rationToFraction [] = ""
-    rationToFraction [a] = a
-    rationToFraction (a:b:c) = 
+    --将rational的表达转化为fractional的表达
+    rationalToFractional [] = ""
+    rationalToFractional [a] = a
+    rationalToFractional (a:b:c) = 
         if b == "%"
-            then (show ((read a) / (read denominator))) ++ (drop (length denominator) headC) ++ (' ':(rationToFraction (tail c)))
-        else a ++ (' ':(rationToFraction (b:c)))
+            then (show ((read a) / (read denominator))) ++ (drop (length denominator) headC) ++ (' ':(rationalToFractional (tail c)))
+        else a ++ (' ':(rationalToFractional (b:c)))
         where headC = head c
               denominator = getNum headC
 
