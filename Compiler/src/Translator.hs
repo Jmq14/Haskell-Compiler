@@ -113,10 +113,19 @@ module Translator where
 	genExpr (Expr.NewExpr Expr.NotOperator _ expr1 expr2) = "(not " ++ genExpr expr1 ++ ")"
 	genExpr (Expr.NewExpr Expr.AndOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " and " ++ genExpr expr2 ++ ")"
 	genExpr (Expr.NewExpr Expr.OrOperator _  expr1 expr2) = "(" ++ genExpr expr1 ++ " or " ++ genExpr expr2 ++ ")"
+
+	genExpr (Expr.NewExpr Expr.PlusOperator _ (Expr.NewConstant (Expr.FloatConstant c1)) (Expr.NewConstant (Expr.FloatConstant c2))) = show (Expr.FloatConstant (c1+c2))
 	genExpr (Expr.NewExpr Expr.PlusOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " + " ++ genExpr expr2 ++ ")"
+
+	genExpr (Expr.NewExpr Expr.MinusOperator _ (Expr.NewConstant (Expr.FloatConstant c1)) (Expr.NewConstant (Expr.FloatConstant c2))) = show (Expr.FloatConstant (c1-c2))
 	genExpr (Expr.NewExpr Expr.MinusOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " - " ++ genExpr expr2 ++ ")"
+
+	genExpr (Expr.NewExpr Expr.MultiplicationOperator _ (Expr.NewConstant (Expr.FloatConstant c1)) (Expr.NewConstant (Expr.FloatConstant c2))) = show (Expr.FloatConstant (c1*c2))
 	genExpr (Expr.NewExpr Expr.MultiplicationOperator _ expr1 expr2) = genExpr expr1 ++ " * " ++ genExpr expr2
+
+	genExpr (Expr.NewExpr Expr.DivisionOperator _ (Expr.NewConstant (Expr.FloatConstant c1)) (Expr.NewConstant (Expr.FloatConstant c2))) = show (Expr.FloatConstant (c1/c2))
 	genExpr (Expr.NewExpr Expr.DivisionOperator _ expr1 expr2) = genExpr expr1 ++ " / " ++ genExpr expr2
+
 	genExpr (Expr.NewExpr Expr.EqualOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " == " ++ genExpr expr2 ++ ")"
 	genExpr (Expr.NewExpr Expr.LessOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " < " ++ genExpr expr2 ++ ")"
 	genExpr (Expr.NewExpr Expr.LeqOperator _ expr1 expr2) = "(" ++ genExpr expr1 ++ " <= " ++ genExpr expr2 ++ ")"
