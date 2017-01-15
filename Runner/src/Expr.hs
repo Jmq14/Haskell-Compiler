@@ -3,6 +3,7 @@ module Expr where
 
 	import qualified Data.Map as Map;
 	import qualified Data.Ratio as Ratio;
+	import qualified Data.List.Split as Split
 
 	import qualified Debug.Trace as Trace
 
@@ -21,7 +22,11 @@ module Expr where
 	-- 常量的显示方法，用于解释器运行的输出
 	notPrettyShow :: Constant -> String
 	notPrettyShow (BoolConstant x) = show x
-	notPrettyShow (FloatConstant x) = show x 
+	notPrettyShow (FloatConstant x) = 
+		let result = Split.splitOn " " (show x) ;
+			v1 = read (head result) :: Float ;
+			v2 = read (last result) :: Float in
+			show (v1/v2)
 	notPrettyShow (StringConstant x) = "''" ++ x ++ "''"
 	notPrettyShow (CharConstant x) = "'" ++ (x:[]) ++ "'"
 	notPrettyShow (PairConstant (l,r)) = "(" ++ (notPrettyShow l) ++ "," ++ (notPrettyShow r) ++ ")"

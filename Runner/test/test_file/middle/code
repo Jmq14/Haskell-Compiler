@@ -40,7 +40,7 @@
 				(set! i (+ i 1)) 
 			)
 		)
-		(return (mul_point ans (/ 1 n)))
+		(return (mul_point (/ 1 n) ans))
 	)
 )
 

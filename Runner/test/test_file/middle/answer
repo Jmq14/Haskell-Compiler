@@ -1,0 +1,3 @@
+Runner-exe: Runtime error: car operator is not available on 0.1
+CallStack (from HasCallStack):
+  error, called at src/Expr.hs:170:25 in Runner-0.1.0.0-9RCT92WAArY41slRe0uciT:Expr

@@ -5,4 +5,4 @@ strs = ""
 for a in range(1,len(sys.argv)):
 	strs = strs + " " + sys.argv[a]
 
-os.system("stack exec -- Haskell-Compiler-exe"+strs)
+os.system("stack exec -- Runner-exe"+strs)

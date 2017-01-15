@@ -52,7 +52,7 @@
 (define (main)
 	(begin
 		(set! ans 0)
-		(set! n 10)
+		(set! n 8)
 		(make-vector pos n)
 		(set! void (dfs 0 0))
 		(print ans)

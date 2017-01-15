@@ -43,6 +43,13 @@ module Lib where
 	catchAny :: IO a -> (Exception.SomeException -> IO a) -> IO a
 	catchAny = Exception.catch
 
+	normalMindWork operator functionList = do
+		if (operator == "value")
+			then do
+				let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty) in putStrLn ("return value:" ++ (Expr.notPrettyShow returnValue))
+			else do
+				PrettyPrinter.prettyPrinter $ map (\(x,y)->y) $ Map.toAscList functionList
+
 	-- 非repl的工作函数
 	normalMind input operator output = do
 		let functionList = Parser.myParse input in do
@@ -51,15 +58,13 @@ module Lib where
 					b <- writeFile output ""
 					fileHandle <- openFile output WriteMode
 					c <- hDuplicateTo fileHandle stderr
-					d <- hDuplicateTo fileHandle stdout
+					normalMindWork operator functionList
+					q <- hClose fileHandle
+					-- d <- hDuplicateTo fileHandle stdout
 					putStr ""
 				else do
+					normalMindWork operator functionList
 					putStr ""
-			if (operator == "value")
-				then do
-					let (globalVariable,returnValue) = Run.runFunction (Variable.NewVariable "main",0,[],functionList,Map.empty) in putStrLn ("return value:" ++ (Expr.notPrettyShow returnValue))
-				else do
-					PrettyPrinter.prettyPrinter $ map (\(x,y)->y) $ Map.toAscList functionList
 			putStr ""
 	
 	-- 捕捉非repl模式的工作异常并输出

@@ -1,1 +1,7 @@
-True
+(define (main)
+	(begin
+		(print True)
+		(print (cdr (cons 3 5)))
+		(return 0)
+	)
+)

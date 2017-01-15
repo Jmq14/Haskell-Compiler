@@ -1,1 +1,1 @@
-stack exec -- Haskell-Compiler-exe "$@"
+stack exec -- Runner-exe "$@"

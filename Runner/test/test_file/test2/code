@@ -1,1 +1,10 @@
-cdr cons 3 5
+(define (main)
+	(begin 
+		(set! a 3) 
+		(if (<= a 3) 
+			(print 3) 
+			(print 4)
+		)
+		(return 0)
+	)
+)
